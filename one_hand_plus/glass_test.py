@@ -37,6 +37,7 @@ def main(args=None):
             move_periodic,
             movej,
             movel,
+            movesx,
             amovel,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
@@ -80,7 +81,8 @@ def main(args=None):
 
     # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
     pos_glass_bottle = posx([495.38, 143.45, 311.82, 8.58, -179.48, 8.7])
-    pos_cup_pre = posx([502.66, 17.85, 276,85, 143.82, 179.79, -37.07])
+    pos_to_opener = posx([-764.65, -236.99, -42.13, 8.94, -105.67, -86.10])
+    pos_opener = posx([-794.65, -236.99, -42.13, 8.94, -105.67, -86.10])
     pos_cup = posx([502.66, 17.85, 112,85, 143.82, 179.79, -37.07])
 
     JReady = posj([0, 0, 90, 0, 90, 0])
@@ -103,13 +105,13 @@ def main(args=None):
         set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
 
         while not check_force_condition(DR_AXIS_Z, max = 12):
-            print("Waiting for an external force greater than 12 ")
+            print("Waiting for an external force greater than 12")
             time.sleep(0.5)
             pass
-        c_pos, _ = get_current_posx()
-        print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}")
+        c_pos_x,c_pos_y, c_pos_z = get_current_posx()[0], get_current_posx()[1], get_current_posx()[2]
+        print(f"x: {c_pos_x}, y: {c_pos_y} , z: {c_pos_z}")
 
-        movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         print("Starting release_force")
         release_force()
@@ -121,9 +123,14 @@ def main(args=None):
         # movej(pos, vel=VELOCITY, acc=ACC)
         movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-        release()
+        # release()
+        movel(pos_to_opener, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
-        movel([0, 0, -23, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        release()
+        time.sleep(1.0)
+
+        movel(pos_opener, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+        # movesx([pos_to_opener,pos_opener], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
         grip()
 
@@ -139,25 +146,20 @@ def main(args=None):
         grip()
         '''
         # movej([0, 0, 0, 0, 0, -180], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        # release()
+        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        # grip()
+        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        # release()
+        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        # grip()
+        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        # movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
     
-        movel(pos_cup_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS, radius=10)
-        movel(pos_cup, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
-
-        
-
-
-        # release()
+        # movel(pos_cup_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS, radius=10)
+        # movel(pos_cup, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
         break
 

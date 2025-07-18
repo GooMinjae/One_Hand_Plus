@@ -20,8 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'plastic=one_hand_plus.plastic_bottle_test:main',
-            'glass=one_hand_plus.glass_test:main',
+        'plastic=one_hand_plus.plastic_bottle_test:main',
         ],
     },
 )

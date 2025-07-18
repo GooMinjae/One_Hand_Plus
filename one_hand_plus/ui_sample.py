@@ -68,7 +68,11 @@ class WindowClass(QMainWindow):
 
     def plastic_task(self):
         print('open plastic')
-        pass
+        try:
+            from one_hand_plus import plastic_bottle_test
+            plastic_bottle_test.main()
+        except Exception as e:
+            print(f"[Error] Failed to execute plastic task: {e}")
 
     def glass_task(self):
         print('open glass')

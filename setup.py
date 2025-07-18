@@ -26,6 +26,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'bread=one_hand_plus.bread:main',
             'plastic=one_hand_plus.plastic_bottle_test:main',
             'glass=one_hand_plus.glass_test:main',
             'ui=one_hand_plus.ui_sample:main'

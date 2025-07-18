@@ -79,11 +79,12 @@ def main(args=None):
 
 
     JReady = posj([0, 0, 90, 0, 90, 0])
-    Knife = posj([0, 0, 90, 0, 90, 0])
-    Chopping = posj([0, 0, 90, 0, 90, 0])
-    Slice_push = posj([0, 0, 90, 0, 90, 0])
-    Vertical_knife = posj([0, 0, 90, 0, 90, 0])
-    Upper_knife = posj([0, 0, 90, 0, 90, 0])
+
+    Knife = posj([-4.08, 1.9, 132.44, -3.61, -37.7, 96.31])
+    Chopping = posj([-26.24, 38.36, 60.44, -0.14, 81.4, 154.61])
+    Slice_push = posj([-31.52, 44.3, 53.66, -0.25, 82.03,149.44])
+    Vertical_knife = posj([-27.49, 3.4, 89.29, -8.28, 2.97,99.88])
+    Upper_knife = posj([-2.92, -4.46, 115.58, -3.63, -20.81, 93.5])
     ##########################################
     x_Knife = posx([0, 0, 90, 0, 90, 0])
     x_Chopping = posx([0, 0, 90, 0, 90, 0])
@@ -118,9 +119,10 @@ def main(args=None):
         movej(JReady, vel=VELOCITY, acc=ACC)    # 홈위치
 
         movej(Knife, vel=VELOCITY, acc=ACC)     # 칼집 위치로 이동
+        movel([0, 0, -50, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         grip()      # 그리퍼 닫아서 칼집고 z축으로 들어 올리기
-        movel([0, 0, 140, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movel([0, 0, 160, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         for _ in range(4):
 
@@ -133,19 +135,19 @@ def main(args=None):
                 time.sleep(0.5)
                 pass
             periodic_amp = [0, 30.0, 0.0, 0.0, 0.0, 0.0]
-            amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=3, ref=DR_TOOL)
+            amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=5, ref=DR_TOOL)
 
-            while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+            while not check_position_condition(DR_AXIS_Z, min=21.18, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
                 time.sleep(0.5)
                 pass
             release_force()
 
-            movel([0, 0, 140, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)      # z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
+            movel([0, 0, 120, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)      # z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
             release_compliance_ctrl()
 
             movej(Slice_push, vel=VELOCITY, acc=ACC)     # 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
             task_compliance_ctrl(stx=[1000, 500, 1000, 100, 100, 100]) 
-            movel([0, 140, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([0, 130, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         
         release_compliance_ctrl()       # 순응제어 끄고 칼 세우고 칼집 위치로 이동
         movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
@@ -159,14 +161,14 @@ def main(args=None):
         amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=6, ref=DR_TOOL)
 
         # 좌표지정위치에서 periodic 끄기
-        while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):
+        while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
             time.sleep(0.5)
             pass
         drl_script_stop(DR_SSTOP)
 
         # checkforce로 끝까지 밀어넣고 그리퍼 열기
         set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        while not check_force_condition(DR_AXIS_Z, max=12):
+        while not check_force_condition(DR_AXIS_Z, max=15):
                 time.sleep(0.5)
                 pass
         release_force()

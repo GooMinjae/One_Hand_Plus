@@ -44,6 +44,7 @@ def main(args=None):
             DR_AXIS_Z,
             DR_BASE,
             DR_TOOL,
+            DR_SSTOP
         )
 
         from DR_common2 import posx, posj
@@ -83,6 +84,12 @@ def main(args=None):
     Slice_push = posj([0, 0, 90, 0, 90, 0])
     Vertical_knife = posj([0, 0, 90, 0, 90, 0])
     Upper_knife = posj([0, 0, 90, 0, 90, 0])
+    ##########################################
+    x_Knife = posx([0, 0, 90, 0, 90, 0])
+    x_Chopping = posx([0, 0, 90, 0, 90, 0])
+    x_Slice_push = posx([0, 0, 90, 0, 90, 0])
+    x_Vertical_knife = posx([0, 0, 90, 0, 90, 0])
+    x_Upper_knife = posx([0, 0, 90, 0, 90, 0])
 
 
     
@@ -122,10 +129,10 @@ def main(args=None):
             task_compliance_ctrl(stx=[1000, 500, 500, 100, 100, 100])       # 힘제어 키고 하강
             set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
 
-            while not check_force_condition(DR_AXIS_Z, max=10):      # 빵 만나면 periodic 비동기 실행
+            while not check_force_condition(DR_AXIS_Z, max=15):      # 빵 만나면 periodic 비동기 실행
                 time.sleep(0.5)
                 pass
-            periodic_amp = [0, 5.0, 0.0, 0.0, 0.0, 0.0]
+            periodic_amp = [0, 30.0, 0.0, 0.0, 0.0, 0.0]
             amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=3, ref=DR_TOOL)
 
             while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
@@ -155,7 +162,7 @@ def main(args=None):
         while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):
             time.sleep(0.5)
             pass
-        drl_script_stop()
+        drl_script_stop(DR_SSTOP)
 
         # checkforce로 끝까지 밀어넣고 그리퍼 열기
         set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)

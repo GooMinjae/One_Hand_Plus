@@ -42,7 +42,7 @@
       <string>캔</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="glass_btn">
      <property name="geometry">
       <rect>
        <x>200</x>
@@ -55,7 +55,7 @@
       <string>유리</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="plastic_bottle_btn">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -68,7 +68,7 @@
       <string>패트병</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="plastic_bottle_img">
      <property name="geometry">
       <rect>
        <x>40</x>
@@ -81,7 +81,7 @@
       <string>TextLabel</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="glass_img">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -112,7 +112,7 @@
     <attribute name="title">
      <string>음식 손질 보조</string>
     </attribute>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="vegetable_btn">
      <property name="geometry">
       <rect>
        <x>70</x>
@@ -125,7 +125,7 @@
       <string>야채</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_5">
+    <widget class="QPushButton" name="bread_btn">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -138,7 +138,7 @@
       <string>빵류</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="vegetable_img">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -151,7 +151,7 @@
       <string>TextLabel</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_5">
+    <widget class="QLabel" name="bread_img">
      <property name="geometry">
       <rect>
        <x>330</x>

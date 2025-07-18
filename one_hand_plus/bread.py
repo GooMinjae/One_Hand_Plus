@@ -119,10 +119,13 @@ def main(args=None):
         movej(JReady, vel=VELOCITY, acc=ACC)    # 홈위치
 
         movej(Knife, vel=VELOCITY, acc=ACC)     # 칼집 위치로 이동
-        movel([0, 0, -50, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movel([50, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         grip()      # 그리퍼 닫아서 칼집고 z축으로 들어 올리기
         movel([0, 0, 160, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
+        ## fix
+        movel([-30, -30, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         for _ in range(4):
 

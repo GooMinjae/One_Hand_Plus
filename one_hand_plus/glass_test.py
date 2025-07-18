@@ -31,6 +31,7 @@ def main(args=None):
             set_tool,
             set_tcp,
             get_current_posx,
+            get_current_posj,
             set_digital_output,
             get_digital_input,
             amove_periodic,
@@ -38,6 +39,7 @@ def main(args=None):
             movej,
             movel,
             movesj,
+            movesx,
             amovel,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
@@ -119,7 +121,7 @@ def main(args=None):
 
         # 병뚜껑 위치 저장
         c_pos, _ = get_current_posx()
-        print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}")
+        print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}, a: {c_pos[3]}, b: {c_pos[4]} , c: {c_pos[5]}")
 
         # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
@@ -134,7 +136,7 @@ def main(args=None):
 
 
         # 병따개 위치로 이동
-        movesj([pos_to_opener_1, pos_to_opener_2, pos_to_opener_3], vel=VELOCITY, acc=ACC)
+        movesj([pos_to_opener_1, JReady], vel=VELOCITY, acc=ACC)
 
         release()
         time.sleep(1.0)
@@ -143,7 +145,20 @@ def main(args=None):
         movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
         # movesx([pos_to_opener,pos_opener], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
-        # grip()
+        grip()
+
+        # 병따개 빼기
+        movesx([[0, 0, 13, 0, 0, 0],[0, 15, 0, 0, 0, 0],[40, 0, 0, 0, 0, 0]], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
+        # movel([0, 0, 13, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        # movel([15, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
+        time.sleep(0.5)
+
+        # 병따개 거는 위치 찾기
+        movesj([pos_to_opener_1, JReady], vel=VELOCITY, acc=ACC)
+        c_pos[1] -= 200
+        movel(c_pos, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+        # movel([0, 0, 0, ], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+
 
         '''
         # 450 deg, 10 mm

@@ -108,8 +108,8 @@ def main(args=None):
             print("Waiting for an external force greater than 12")
             time.sleep(0.5)
             pass
-        c_pos_x,c_pos_y, c_pos_z = get_current_posx()[0], get_current_posx()[1], get_current_posx()[2]
-        print(f"x: {c_pos_x}, y: {c_pos_y} , z: {c_pos_z}")
+        # c_pos, _ = get_current_posx()
+        # print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}")
 
         # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 

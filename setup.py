@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
         'plastic=one_hand_plus.plastic_bottle_test:main',
+        'glass=one_hand_plus.glass_test:main'
         ],
     },
 )

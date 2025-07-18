@@ -102,7 +102,7 @@ def main(args=None):
 
         # 병뚜껑 위치
         print(f"Moving to task position: {pos_glass_bottle}")
-        movesj(pos_glass_bottle, vel=VELOCITY, acc=ACC)
+        movel(pos_glass_bottle, vel=VELOCITY, acc=ACC)
 
         # 힘제어로 병뚜껑 위치 찾기
         print("Starting task_compliance_ctrl")
@@ -134,13 +134,13 @@ def main(args=None):
 
 
         # 병따개 위치로 이동
-        movesj([pos_to_opener_1, pos_to_opener_2, pos_to_opener_3], vel=VELOCITY, acc=ACC, ref=DR_BASE)
+        movesj([pos_to_opener_1, pos_to_opener_2, pos_to_opener_3], vel=VELOCITY, acc=ACC)
 
         release()
         time.sleep(1.0)
 
         # 병따개 잡기
-        movel([-15, 0, -0.5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
         # movesx([pos_to_opener,pos_opener], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
         # grip()

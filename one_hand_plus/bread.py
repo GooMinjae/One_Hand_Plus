@@ -81,8 +81,10 @@ def main(args=None):
     JReady = posj([0, 0, 90, 0, 90, 0])
 
     Knife = posj([-3.59, 19.83, 119.88, -2.42, -49.43, 91.43])
+    mov_1 = posj([-11.27, 6.04, 106.79, -23.6, -24.34, 111.6])
     Chopping = posj([-26.24, 38.36, 60.44, -0.14, 81.4, 154.61])
     Slice_push = posj([-31.52, 44.3, 53.66, -0.25, 82.03,149.44])
+    Bread_push = posj([-31.52, 44.3, 53.66, -0.25, 82.03,149.44]) ################################ 사용할 시 티칭 필요 #########################
     Vertical_knife = posj([-27.49, 3.4, 89.29, -8.28, 2.97,99.88])
     Upper_knife = posj([-3.24, -12.65, 100.93, -4.09, -23.28, 93.76])
     ##########################################
@@ -103,16 +105,18 @@ def main(args=None):
     6. 빵 만나면 periodic 비동기 실행 + z축 하강
     7. 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
     8. z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
-    9. 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
-    10. 4~9 n회 반복
- 
-    11. 칼을 세우고 칼집 위쪽으로 이동
-    12. 천천히 하강(순응제어키고) periodic 비동기
-    13. 좌표지정위치에서 periodic 끄기
-    14. checkforce로 끝까지 밀어넣고 그리퍼 열기
-    15. 힘제어 끄고 홈위치로 이동
 
+    12. 칼 세우고 칼집 위쪽으로 이동
+    13. 천천히 하강(순응제어키고) periodic 비동기
+    14. 좌표지정위치에서 periodic 끄기
+    15. checkforce로 끝까지 밀어넣고 그리퍼 열기
+    16. 힘제어 끄고 홈위치로 이동
     '''
+
+    # 9. 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
+    # 10. 빵본체를 밀수 있는 위치로 이동 후 순응제어 키고 밀기
+    # 11. 4~10 n회 반복
+
     while rclpy.ok():
         release()
         print(f"Moving to joint position: {JReady}")    
@@ -125,9 +129,11 @@ def main(args=None):
         movel([0, 0, 160, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         ## fix
-        movel([-30, -30, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movej(mov_1, vel=VELOCITY, acc=ACC)
+        movej(Chopping, vel=VELOCITY, acc=ACC)
+        time.sleep(0.1)
 
-        for _ in range(4):
+        for _ in range(1):
 
             movej(Chopping, vel=VELOCITY, acc=ACC)      # 빵 좌표로 이동
 
@@ -148,11 +154,17 @@ def main(args=None):
             movel([0, 0, 120, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)      # z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
             release_compliance_ctrl()
 
-            movej(Slice_push, vel=VELOCITY, acc=ACC)     # 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
-            task_compliance_ctrl(stx=[1000, 500, 1000, 100, 100, 100]) 
-            movel([0, 130, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            # movej(Slice_push, vel=VELOCITY, acc=ACC)     # 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
+            # task_compliance_ctrl(stx=[1000, 500, 1000, 100, 100, 100]) 
+            # movel([0, 130, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            # release_compliance_ctrl()
+
+            # movej(Bread_push, vel=VELOCITY, acc=ACC)     # 빵본체를 밀 위치로 이동 후 순응제어 키고 밀기
+            # task_compliance_ctrl(stx=[500, 1000, 1000, 100, 100, 100]) 
+            # movel([140, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            # release_compliance_ctrl()
         
-        release_compliance_ctrl()       # 순응제어 끄고 칼 세우고 칼집 위치로 이동
+        # 칼 세우고 칼집 위치로 이동
         movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
         movej(Upper_knife, vel=VELOCITY, acc=ACC)
 

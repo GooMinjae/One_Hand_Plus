@@ -159,7 +159,7 @@ def main(args=None):
 
     
         # movel(pos_cup_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS, radius=10)
-        movel(pos_cup, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
+        # movel(pos_cup, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
         break
 

@@ -37,6 +37,7 @@ def main(args=None):
             movej,
             movel,
             amovel,
+            drl_script_stop,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
             DR_MV_MOD_ABS,
@@ -79,6 +80,10 @@ def main(args=None):
     JReady = posj([0, 0, 90, 0, 90, 0])
     Knife = posj([0, 0, 90, 0, 90, 0])
     Chopping = posj([0, 0, 90, 0, 90, 0])
+    Slice_push = posj([0, 0, 90, 0, 90, 0])
+    Vertical_knife = posj([0, 0, 90, 0, 90, 0])
+    Upper_knife = posj([0, 0, 90, 0, 90, 0])
+
 
     
     '''
@@ -89,13 +94,15 @@ def main(args=None):
     5. 힘제어 키고 하강
     6. 빵 만나면 periodic 비동기 실행 + z축 하강
     7. 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
-    8. z축으로만 이동하면서 빵 위로 오기
-    +) periodic을 활용한 빵 슬라이스 자르기 + 그리퍼 teaching(=축 회전)을 통한 슬라이스 우측으로 넘기기 + 살짝 상방이동 + 좌측이동   
-    9. 칼을 세우고 칼집 위쪽으로 이동
-    10. 천천히 하강(순응제어키고) periodic 비동기
-    11. 좌표지정위치에서 periodic 끄기
-    12. checkforce로 끝까지 밀어넣고 그리퍼 열기
-    13. 힘제어 끄고 홈위치로 이동
+    8. z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
+    9. 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
+    10. 4~9 n회 반복
+ 
+    11. 칼을 세우고 칼집 위쪽으로 이동
+    12. 천천히 하강(순응제어키고) periodic 비동기
+    13. 좌표지정위치에서 periodic 끄기
+    14. checkforce로 끝까지 밀어넣고 그리퍼 열기
+    15. 힘제어 끄고 홈위치로 이동
 
     '''
     while rclpy.ok():
@@ -108,33 +115,59 @@ def main(args=None):
         grip()      # 그리퍼 닫아서 칼집고 z축으로 들어 올리기
         movel([0, 0, 140, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-        movej(Chopping, vel=VELOCITY, acc=ACC)      # 빵 좌표로 이동
+        for _ in range(4):
 
-        task_compliance_ctrl(stx=[1000, 500, 500, 100, 100, 100])       # 힘제어 키고 하강
-        set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+            movej(Chopping, vel=VELOCITY, acc=ACC)      # 빵 좌표로 이동
 
-        while not check_force_condition(DR_AXIS_Z, max=10):      # 빵 만나면 periodic 비동기 실행
+            task_compliance_ctrl(stx=[1000, 500, 500, 100, 100, 100])       # 힘제어 키고 하강
+            set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+
+            while not check_force_condition(DR_AXIS_Z, max=10):      # 빵 만나면 periodic 비동기 실행
                 time.sleep(0.5)
                 pass
-        example_amp = [0, 5.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=example_amp, period=1.0, atime=0.02, repeat=3, ref=DR_TOOL)
+            periodic_amp = [0, 5.0, 0.0, 0.0, 0.0, 0.0]
+            amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=3, ref=DR_TOOL)
 
-        while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+            while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+                time.sleep(0.5)
+                pass
+            release_force()
+
+            movel([0, 0, 140, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)      # z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
+            release_compliance_ctrl()
+
+            movej(Slice_push, vel=VELOCITY, acc=ACC)     # 자른 빵을 밀 위치로 이동 후 순응제어 키고 밀기
+            task_compliance_ctrl(stx=[1000, 500, 1000, 100, 100, 100]) 
+            movel([0, 140, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        
+        release_compliance_ctrl()       # 순응제어 끄고 칼 세우고 칼집 위치로 이동
+        movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
+        movej(Upper_knife, vel=VELOCITY, acc=ACC)
+
+        # 천천히 하강(순응제어키고) periodic 비동기
+        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+        periodic_amp_1 = [10.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=2, ref=DR_TOOL)
+        periodic_amp_2 = [0, 5.0, 0.0, 0.0, 0.0, 0.0]
+        amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=6, ref=DR_TOOL)
+
+        # 좌표지정위치에서 periodic 끄기
+        while not check_position_condition(DR_AXIS_Z, min=292, ref=DR_BASE):
+            time.sleep(0.5)
+            pass
+        drl_script_stop()
+
+        # checkforce로 끝까지 밀어넣고 그리퍼 열기
+        set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        while not check_force_condition(DR_AXIS_Z, max=12):
                 time.sleep(0.5)
                 pass
         release_force()
-        movel([0, 0, 140, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        
-        
-        
+        release()
+        release_compliance_ctrl()
 
-
-
-
+        movej(JReady, vel=VELOCITY, acc=ACC)    # 홈위치
         break
-
-
-
     rclpy.shutdown()
 
 

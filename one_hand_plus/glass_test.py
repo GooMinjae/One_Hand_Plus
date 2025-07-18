@@ -37,7 +37,7 @@ def main(args=None):
             move_periodic,
             movej,
             movel,
-            movesx,
+            movesj,
             amovel,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
@@ -77,26 +77,34 @@ def main(args=None):
     set_tool("Tool Weight_2FG")
     set_tcp("2FG_TCP")
 
-
+    ############################# 위치 저장 #################################
 
     # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
     pos_glass_bottle = posx([495.38, 143.45, 311.82, 8.58, -179.48, 8.7])
-    pos_to_opener = posx([-764.65, -236.99, -42.13, 8.94, -105.67, -86.10])
-    pos_opener = posx([-794.65, -236.99, -42.13, 8.94, -105.67, -86.10])
+    pos_to_opener_1 = posj([-128.85, 0.01, 90.0, 0.0, 90, 0.0])
+    pos_to_opener_2 = posj([-164.17, 26.14, 95.48, -2.38, 15.98, 0.0])
+    # pos_to_opener_3 = posj([-168.4, 44.25, 99.59, 18.99, -25.26, -100.67])
+    pos_to_opener_3 = posj([-163.03, 50.58, 102.46, 28.39, -47.42, -100.67])    
     pos_cup = posx([502.66, 17.85, 112,85, 143.82, 179.79, -37.07])
 
     JReady = posj([0, 0, 90, 0, 90, 0])
+
+    #######################################################################
+
     # release()
     grip()
     
     while rclpy.ok():
-
+        
+        # 홈위치
         print(f"Moving to joint position: {JReady}")
         movej(JReady, vel=VELOCITY, acc=ACC)
 
+        # 병뚜껑 위치
         print(f"Moving to task position: {pos_glass_bottle}")
-        movel(pos_glass_bottle, vel=VELOCITY, acc=ACC)
+        movesj(pos_glass_bottle, vel=VELOCITY, acc=ACC)
 
+        # 힘제어로 병뚜껑 위치 찾기
         print("Starting task_compliance_ctrl")
         task_compliance_ctrl(stx=[3000, 3000, 500, 100, 100, 100])
         time.sleep(0.5)
@@ -108,8 +116,10 @@ def main(args=None):
             print("Waiting for an external force greater than 12")
             time.sleep(0.5)
             pass
-        # c_pos, _ = get_current_posx()
-        # print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}")
+
+        # 병뚜껑 위치 저장
+        c_pos, _ = get_current_posx()
+        print(f"x: {c_pos[0]}, y: {c_pos[1]} , z: {c_pos[2]}")
 
         # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
@@ -119,20 +129,21 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl")      
         release_compliance_ctrl()
-
-        # movej(pos, vel=VELOCITY, acc=ACC)
+        
         movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-        # release()
-        movel(pos_to_opener, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+
+        # 병따개 위치로 이동
+        movesj([pos_to_opener_1, pos_to_opener_2, pos_to_opener_3], vel=VELOCITY, acc=ACC, ref=DR_BASE)
 
         release()
         time.sleep(1.0)
 
-        movel(pos_opener, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+        # 병따개 잡기
+        movel([-15, 0, -0.5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # movesx([pos_to_opener,pos_opener], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
-        grip()
+        # grip()
 
         '''
         # 450 deg, 10 mm

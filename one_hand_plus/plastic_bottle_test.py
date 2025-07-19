@@ -192,6 +192,7 @@ def main(args=None):
         movej(pos_bottle, vel=VELOCITY, acc=ACC)
 
         force_control()
+        real_bottle_pos = global_c_pos
         # movej(pos, vel=VELOCITY, acc=ACC)
         movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         
@@ -247,6 +248,8 @@ def main(args=None):
         # movel([0, 0, -20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         grip()
+        x, y, z, r, p, y = cap_release_pos[0], cap_release_pos[1], real_bottle_pos[2]+10, cap_release_pos[4], cap_release_pos[5]
+        movel(posx([x, y, z, r, p, y]), vel=VELOCITY, acc=ACC)
 
         movej(pos_bottle, vel=VELOCITY, acc=ACC)   #다시 병 위로 복귀시킴.
 

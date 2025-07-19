@@ -89,7 +89,7 @@ def main(args=None):
     pos_to_opener_3 = posj([-163.03, 50.58, 102.46, 28.39, -47.42, -100.67])    
     pos_cup = posx([502.66, 17.85, 112,85, 143.82, 179.79, -37.07])
 
-    pos_cap_for_force = posk([156.86, -23.76, -109.9, 93.24, -81.58, 99.71])
+    pos_cap_for_force = posj([156.86, -23.76, -109.9, 93.24, -81.58, 99.71])
 
     JReady = posj([0, 0, 90, 0, 90, 0])
 
@@ -150,7 +150,7 @@ def main(args=None):
         grip()
 
         # 병따개 빼기
-        movesx([[0, 0, 13, 0, 0, 0],[0, 15, 0, 0, 0, 0],[40, 0, 0, 0, 0, 0]], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
+        movesx([posx([0, 0, 13, 0, 0, 0]),posx([0, 15, 0, 0, 0, 0]),posx([40, 0, 0, 0, 0, 0])], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
         # movel([0, 0, 13, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # movel([15, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
         time.sleep(0.5)
@@ -161,20 +161,20 @@ def main(args=None):
         # movel(c_pos, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
         # 힘제어로 병따개 맞추기
-        print("Starting task_compliance_ctrl for pos_open")
-        task_compliance_ctrl(stx=[3000, 3000, 500, 100, 100, 100])
-        time.sleep(0.5)
+        # print("Starting task_compliance_ctrl for pos_open")
+        # task_compliance_ctrl(stx=[3000, 3000, 500, 100, 100, 100])
+        # time.sleep(0.5)
 
-        print("Starting set_desired_force for pos_open")
-        # set_desired_force(fd=[0, , 0, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        # print("Starting set_desired_force for pos_open")
+        # # set_desired_force(fd=[0, , 0, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
 
 
         
 
-        while not check_force_condition(DR_AXIS_Z, max = 12):
-            print("Waiting for an external force greater than 12")
-            time.sleep(0.5)
-            pass
+        # while not check_force_condition(DR_AXIS_Z, max = 12):
+        #     print("Waiting for an external force greater than 12")
+        #     time.sleep(0.5)
+        #     pass
 
 
         '''

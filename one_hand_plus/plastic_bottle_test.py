@@ -277,26 +277,35 @@ def main(args=None):
         # movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         # movel([-0.2, 0.2, 0, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
+        print("Starting task_compliance_ctrl")
+        task_compliance_ctrl(stx=[3000, 3000, 500, 100, 100, 100])
+        time.sleep(0.5)
 
         print("Starting set_desired_force")
-        set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
-
-        while not check_force_condition(DR_AXIS_Z, max=7, ref=DR_BASE):
-            print(get_tool_force())
-            print("Waiting for an external force greater than 10 ")   #add compliance 
+        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+    
+        while not check_force_condition(DR_AXIS_Z, max=12):
+            print("Waiting for an external force greater than 5 ")
+            time.sleep(0.5)
             pass
 
         example_amp = [-4.0, -4.0, 0.0, 0.0, 0.0, 0.0]
         print(f"Starting amove_periodic: {example_amp}")
         amove_periodic(amp=example_amp, period=5, atime=0.02, repeat=3, ref=DR_TOOL)
 
-        print(get_tool_force())
         time.sleep(1.0)
 
         while not check_force_condition(DR_AXIS_X, min=2, ref=DR_BASE):
             print('check for hole')
-            print(get_tool_force())
             pass
+
+
+        print("Starting release_force")
+        release_force()
+        time.sleep(0.5)
+        
+        print("Starting release_compliance_ctrl")      
+        release_compliance_ctrl()
         
         close_lid()
 

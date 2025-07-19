@@ -56,7 +56,14 @@ def main(args=None):
     except ImportError as e:
         print(f"Error importing DSR_ROBOT2 : {e}")
         return
-    
+
+    # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
+    pos_bottle = posj([15.40, 23.25, 47.42, -0.39, 109.19, 1.74])
+    pos_cap_pre = posx([502.66, 17.85, 276.85, 143.82, 179.79, -37.07])
+    pos_cap = posx([502.66, 17.85, 112.85, 143.82, 179.79, -37.07])
+
+    JReady = posj([0, 0, 90, 0, 90, 0])
+        
     def wait_digital_input(sig_num):
         while not get_digital_input(sig_num):
             time.sleep(0.5)
@@ -77,6 +84,14 @@ def main(args=None):
         set_digital_output(2, OFF)
         # wait_digital_input(1)
         time.sleep(1.0)
+
+    def start():
+        release()
+
+        print(f"Moving to joint position: {JReady}")
+        movej(JReady, vel=VELOCITY, acc=ACC)
+        
+        grip()
 
     def force_control():
         global global_c_pos
@@ -103,32 +118,80 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl")      
         release_compliance_ctrl()
+
     
-    def close_lid():
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+    def grip_lid_for_open():
+
+        print(f"Moving to task position: {pos_bottle}")
+        movej(pos_bottle, vel=VELOCITY, acc=ACC)
+
+        force_control()
+        real_bottle_pos = global_c_pos
+        # movej(pos, vel=VELOCITY, acc=ACC)
+        movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        
         release()
-        movel([0, 0, +4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+
+        movel([0, 0, -23, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
         grip()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+    
+    def open_lid(motion):
+        
+        if motion == 'open':
+            direction = 1
+        elif motion == 'close':
+            direction = -1
+
+        # print("Starting task_compliance_ctrl")
+        # task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+        # time.sleep(0.5)
+
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         grip()
-        movel([0, 0, -4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
+        
+    def close_lid(motion):
+        if motion == 'open':
+            direction = 1
+        elif motion == 'close':
+            direction = -1
+
+
+
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
         movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-    def open_lid():
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        # print("Starting release_compliance_ctrl")      
+        # release_compliance_ctrl()
 
+
+    def regrip_lid():
+        print(f"moving back to cap position: {pos_cap_pre}")
+        movel(pos_cap_pre, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
+        release()
+
+        # force_control()
+        movel(cap_release_pos, vel=VELOCITY, acc=ACC, ref=DR_BASE)
+
+        grip()
 
 # //////////////////////////////////////////////////////////////////////////////
     def check_force_and_release():
@@ -172,60 +235,25 @@ def main(args=None):
     set_tcp("2FG_TCP")
 
 
-
-    # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
-    pos_bottle = posj([15.40, 23.25, 47.42, -0.39, 109.19, 1.74])
-    pos_cap_pre = posx([502.66, 17.85, 276.85, 143.82, 179.79, -37.07])
-    pos_cap = posx([502.66, 17.85, 112.85, 143.82, 179.79, -37.07])
+    '''
+    # 450 deg, 10 mm
+    example_amp = [0.0, 0.0, 2.0, 0.0, 0.0, -90.0]
+    amove_periodic(amp=example_amp, period=8.0, atime=0.02, repeat=3, ref=DR_TOOL)
+    time.sleep(2.0)
 
     release()
-    JReady = posj([0, 0, 90, 0, 90, 0])
+    time.sleep(4.0)
 
     grip()
-    
+    '''
+
+
     while rclpy.ok():
+        start()
+        grip_lid_for_open()
 
-        print(f"Moving to joint position: {JReady}")
-        movej(JReady, vel=VELOCITY, acc=ACC)
+        open_lid('open')
 
-        print(f"Moving to task position: {pos_bottle}")
-        movej(pos_bottle, vel=VELOCITY, acc=ACC)
-
-        force_control()
-        real_bottle_pos = global_c_pos
-        # movej(pos, vel=VELOCITY, acc=ACC)
-        movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        
-        release()
-
-        movel([0, 0, -23, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-        grip()
-
-        '''
-        # 450 deg, 10 mm
-        example_amp = [0.0, 0.0, 2.0, 0.0, 0.0, -90.0]
-        amove_periodic(amp=example_amp, period=8.0, atime=0.02, repeat=3, ref=DR_TOOL)
-        time.sleep(2.0)
-
-        release()
-        time.sleep(4.0)
-
-        grip()
-        '''
-        # movej([0, 0, 0, 0, 0, -180], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-    
         movel(pos_cap_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
         movel(pos_cap, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
@@ -235,48 +263,14 @@ def main(args=None):
 
         movej(JReady, vel=VELOCITY, acc=ACC) # return to the original spot
  #/////////////////////////////////////////////////////////////////////////////////////////////////////
-        print(f"moving back to cap position: {pos_cap_pre}")
-        movel(pos_cap_pre, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
-        release()
+        regrip_lid()
 
-        # force_control()
-        movel(cap_release_pos, vel=VELOCITY, acc=ACC, ref=DR_BASE)
-
-        # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-
-        # movel([0, 0, -20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-        grip()
-        x, y, z, r, p, y = cap_release_pos[0], cap_release_pos[1], real_bottle_pos[2]+10, cap_release_pos[4], cap_release_pos[5]
-        movel(posx([x, y, z, r, p, y]), vel=VELOCITY, acc=ACC)
+        movel(posx(0, 0, 200, 0, 0, 0), vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_REL)
 
         movej(pos_bottle, vel=VELOCITY, acc=ACC)   #다시 병 위로 복귀시킴.
 
         #여기다가 이제 오늘 배운 무브피리오딕 사용해서 돌려돌려 병 뚜껑에 장착 
         
-        # force_control()
-        # # movej(pos, vel=VELOCITY, acc=ACC)
-        # movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        
-        # release()
-
-        # movel([0, 0, -20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-        # grip()
-        
-        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # release()
-        # movel([0, 0, +4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # grip()
-        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # release()
-        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # grip()
-        # movel([0, 0, -4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-        # movel([-0.2, 0.2, 0, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
         print("Starting task_compliance_ctrl")
         task_compliance_ctrl(stx=[3000, 3000, 500, 100, 100, 100])
         time.sleep(0.5)
@@ -306,8 +300,23 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl")      
         release_compliance_ctrl()
+
+        release()
+        movej(pos_bottle, vel=VELOCITY, acc=ACC)
+        grip()
+
+        force_control()
+
+        movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         
-        close_lid()
+        release()
+
+        movel([0, 0, -23, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
+        grip()
+
+        
+        close_lid('close')
 
         
         movej(JReady, vel=VELOCITY, acc=ACC) # return to home 

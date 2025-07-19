@@ -36,6 +36,7 @@ def main(args=None):
             amove_periodic,
             movej,
             movel,
+            movesj,
             amovel,
             drl_script_stop,
             DR_FC_MOD_REL,
@@ -129,8 +130,9 @@ def main(args=None):
         movel([0, 0, 160, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         ## fix
-        movej(mov_1, vel=VELOCITY, acc=ACC)
-        movej(Chopping, vel=VELOCITY, acc=ACC)
+        movesj([mov_1, Chopping], vel=VELOCITY, acc=ACC)
+        # movej(mov_1, vel=VELOCITY, acc=ACC)
+        # movej(Chopping, vel=VELOCITY, acc=ACC)
         time.sleep(0.1)
 
         for _ in range(1):

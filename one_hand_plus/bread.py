@@ -143,10 +143,15 @@ def main(args=None):
             task_compliance_ctrl(stx=[500, 300, 300, 100, 100, 100])       # 힘제어 키고 하강
             set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
 
-            while not check_force_condition(DR_AXIS_Z, max=11):      # 빵 만나면 periodic 비동기 실행
-                print("Starting check_force_condition")
+            # while not check_force_condition(DR_AXIS_Z, max=11):      # 빵 만나면 periodic 비동기 실행
+            #     print("Starting check_force_condition")
+            #     time.sleep(0.5)
+            #     pass
+            while not check_position_condition(DR_AXIS_Z, min=47.50, ref=DR_BASE):
+                print("Starting check_position_condition")
                 time.sleep(0.5)
                 pass
+            
             periodic_amp = [0, 30.0, 0.0, 0.0, 0.0, 0.0]
             amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=5, ref=DR_TOOL)
 

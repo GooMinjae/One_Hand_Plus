@@ -103,6 +103,32 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl")      
         release_compliance_ctrl()
+    
+    def close_lid():
+        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, +4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, -4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
+    def open_lid():
+        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        release()
+        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        grip()
+        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
 
 # //////////////////////////////////////////////////////////////////////////////
     def check_force_and_release():
@@ -209,7 +235,7 @@ def main(args=None):
         movej(JReady, vel=VELOCITY, acc=ACC) # return to the original spot
  #/////////////////////////////////////////////////////////////////////////////////////////////////////
         print(f"moving back to cap position: {pos_cap_pre}")
-        movej(pos_cap_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
+        movel(pos_cap_pre, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
         release()
 
         # force_control()
@@ -254,7 +280,7 @@ def main(args=None):
 
         while not check_force_condition(DR_AXIS_Z, max=7, ref=DR_BASE):
             print(get_tool_force())
-            print("Waiting for an external force greater than 10 ")
+            print("Waiting for an external force greater than 10 ")   #add compliance 
             pass
 
         example_amp = [-4.0, -4.0, 0.0, 0.0, 0.0, 0.0]
@@ -269,18 +295,10 @@ def main(args=None):
             print(get_tool_force())
             pass
         
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, +4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        release()
-        movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        grip()
-        movel([0, 0, -4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        close_lid()
 
-        movej(JReady, vel=VELOCITY, acc=ACC) # return to the original spot
+        
+        movej(JReady, vel=VELOCITY, acc=ACC) # return to home 
 
         
 

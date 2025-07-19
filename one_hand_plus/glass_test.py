@@ -162,18 +162,18 @@ def main(args=None):
 
         # 힘제어로 병따개 위치 맞추기
         print("Starting task_compliance_ctrl for pos_open")
-        task_compliance_ctrl(stx=[500, 500, 500, 100, 100, 100])
+        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
         time.sleep(0.5)
 
         print("Starting set_desired_force for pos_open")
-        set_desired_force(fd=[-15, -15, -15, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-
+        set_desired_force(fd=[15, 15, -15, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        
 
         while not check_force_condition(DR_AXIS_Z, max = 12):
             print("Waiting for an external force greater than 12")
             time.sleep(0.5)
             pass
-        
+
         print('Find opener position!!')
 
         print("Starting release_force by find opener position")
@@ -182,34 +182,7 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl by find opener position")      
         release_compliance_ctrl()
-
-        '''
-        # 450 deg, 10 mm
-        example_amp = [0.0, 0.0, 2.0, 0.0, 0.0, -90.0]
-        amove_periodic(amp=example_amp, period=8.0, atime=0.02, repeat=3, ref=DR_TOOL)
-        time.sleep(2.0)
-
-        release()
-        time.sleep(4.0)
-
-        grip()
-        '''
-        # movej([0, 0, 0, 0, 0, -180], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # release()
-        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # grip()
-        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # release()
-        # movel([0, 0, -4, 0, 0, -179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # grip()
-        # movel([0, 0, 4, 0, 0, 179], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
-        # movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-
-    
-        # movel(pos_cup_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS, radius=10)
-        # movel(pos_cup, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
-
+        
         break
 
     rclpy.shutdown()

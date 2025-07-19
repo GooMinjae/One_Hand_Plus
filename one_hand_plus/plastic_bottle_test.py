@@ -167,15 +167,15 @@ def main(args=None):
 
 
 
-        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
         movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         grip()
-        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
         movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         grip()
-        movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
         movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
@@ -320,6 +320,8 @@ def main(args=None):
 
         
         movej(JReady, vel=VELOCITY, acc=ACC) # return to home 
+
+        break
 
         
 

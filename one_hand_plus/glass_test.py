@@ -1,6 +1,7 @@
 import time
 import rclpy
 import DR_init
+import math
 
 # for single robot
 ROBOT_ID = "dsr01"
@@ -32,6 +33,7 @@ def main(args=None):
             set_tcp,
             get_current_posx,
             get_current_posj,
+            drl_script_stop,
             set_digital_output,
             get_digital_input,
             amove_periodic,
@@ -49,6 +51,7 @@ def main(args=None):
             DR_AXIS_X,
             DR_BASE,
             DR_TOOL,
+            DR_QSTOP
         )
 
         from DR_common2 import posx, posj
@@ -93,6 +96,11 @@ def main(args=None):
     pos_cap_for_force = posj([156.86, -23.76, -109.9, 93.24, -81.58, 99.71-180])
 
     JReady = posj([0, 0, 90, 0, 90, 0])
+
+    opener_length = 85
+    open_degree = 30
+    open_degree_to_rad = math.sin(open_degree)
+
 
     #######################################################################
 
@@ -152,6 +160,7 @@ def main(args=None):
 
         # 병따개 빼기
         movesx([posx([0, 0, 13, 0, 0, 0]),posx([0, 15, 0, 0, 0, 0]),posx([70, 0, 0, 0, 0, 0])], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
+        c_pos_opener_out, _ = get_current_posj()    # 다시 돌려놓을때 위치를 알아내기 위해 저장
         # movel([0, 0, 13, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # movel([15, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
         time.sleep(0.5)
@@ -190,7 +199,31 @@ def main(args=None):
         release_compliance_ctrl()
 
         # 병뚜껑 따기
-        # movel()
+        print('Starting open lid')
+        amovel([-opener_length, opener_length, 0, 0, 0, -89], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
+
+        while not check_position_condition(axis=DR_AXIS_Y, max=opener_length*open_degree_to_rad, ref=DR_TOOL,mod=DR_MV_MOD_REL):
+                print("opening!!")
+                time.sleep(0.5)
+                pass
+
+        drl_script_stop(DR_QSTOP)
+
+        # 병따개 다시 갖다 놓기
+        print("Move to original place")
+        movesj([pos_to_opener_1, c_pos_opener_out], vel=VELOCITY, acc=ACC)
+        time.sleep(0.5)
+
+        print("Adjust position for original place")
+        movesx([posx([-70, 0, 0, 0, 0, 0]),posx([0, -15, 0, 0, 0, 0]),posx([0, 0, -13, 0, 0, 0])], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
+
+        release()
+
+        # 홈위치로
+        print("Get home position")
+        movel([0, 0, -30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
+
+        movesj([pos_to_opener_3, pos_to_opener_2, pos_to_opener_1,JReady], vel=VELOCITY, acc=ACC)
 
         break
 

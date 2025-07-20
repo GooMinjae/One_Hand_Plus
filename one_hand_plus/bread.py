@@ -44,6 +44,7 @@ def main(args=None):
             DR_MV_MOD_REL,
             DR_MV_MOD_ABS,
             DR_AXIS_Z,
+            DR_AXIS_Y,
             DR_BASE,
             DR_TOOL,
             DR_SSTOP
@@ -142,32 +143,37 @@ def main(args=None):
         # movej(Chopping, vel=VELOCITY, acc=ACC)      
         # movel([0, 0, -10, 0, -20, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-        task_compliance_ctrl(stx=[1000, 1000, 300, 100, 100, 100])       # 힘제어 키고 하강
+        task_compliance_ctrl(stx=[1000, 500, 300, 100, 100, 100])       # 힘제어 키고 하강
         time.sleep(0.3)
         set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
         time.sleep(0.3)
-        # while not check_force_condition(DR_AXIS_Z, max=11):      # 빵 만나면 periodic 비동기 실행
-        #     print("Starting check_force_condition")
-        #     time.sleep(0.5)
-        #     pass
-        while not check_position_condition(DR_AXIS_Z, min=80, ref=DR_BASE):
-            print("Starting check_position_condition")
+        while not check_force_condition(DR_AXIS_Z, max=6):      # 빵 만나면 periodic 비동기 실행
+            print("Starting check_force_condition")
             time.sleep(0.5)
             pass
+        # while not check_position_condition(DR_AXIS_Z, min=80, ref=DR_BASE):
+        #     print("Starting check_position_condition")
+        #     time.sleep(0.5)
+        #     pass
         
         periodic_amp = [0, 15.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=15, ref=DR_TOOL)
+        amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=20, ref=DR_TOOL)
 
-        while not check_position_condition(DR_AXIS_Z, min=40.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+        while not check_position_condition(DR_AXIS_Z, min=40.50, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
             print("Periodic check_position_condition")
             print(get_current_posx())
             time.sleep(0.5)
             pass
+        # time.sleep(1.0)
+        # while not check_force_condition(DR_AXIS_Y, min=5):      # 바닥 만나면 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+        #     print("Starting check_force_condition")
+        #     time.sleep(0.5)
+        #     pass
         release_force()
         time.sleep(0.3)
         release_compliance_ctrl()
-        time.sleep(0.3)
-        
+        time.sleep(1.0)
+        drl_script_stop(DR_SSTOP)
         
         set_ref_coord(DR_BASE)
         movel([0, 0, 120, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)      # z축으로만 이동하면서 빵 위로 나온 뒤 순응제어 종료
@@ -191,15 +197,13 @@ def main(args=None):
         # 천천히 하강(순응제어키고) periodic 비동기
         task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
         time.sleep(0.3)
-        set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
         time.sleep(0.3)
         set_ref_coord(DR_BASE)
         periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=2, ref=DR_BASE)
-        # periodic_amp_1 = [10.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        # amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=2, ref=DR_TOOL)
-
-        movel([0, 0, -10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=20, ref=DR_BASE)
+        periodic_amp_1 = [5.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
 
 
         # 좌표지정위치에서 periodic 끄기
@@ -213,10 +217,12 @@ def main(args=None):
                 time.sleep(0.5)
                 print("check_force_condition")
                 pass
+        
         release_force()
         time.sleep(0.3)
         release_compliance_ctrl()
         time.sleep(0.3)
+        drl_script_stop(DR_SSTOP)
         release()
 
         set_ref_coord(DR_BASE)

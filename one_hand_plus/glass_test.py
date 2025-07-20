@@ -49,6 +49,7 @@ def main(args=None):
             DR_AXIS_Z,
             DR_AXIS_Y,
             DR_AXIS_X,
+            DR_AXIS_C,
             DR_BASE,
             DR_TOOL,
             DR_QSTOP
@@ -160,7 +161,7 @@ def main(args=None):
 
         # 병따개 빼기
         movesx([posx([0, 0, 13, 0, 0, 0]),posx([0, 15, 0, 0, 0, 0]),posx([70, 0, 0, 0, 0, 0])], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod= DR_MV_MOD_REL)
-        c_pos_opener_out, _ = get_current_posj()    # 다시 돌려놓을때 위치를 알아내기 위해 저장
+        c_pos_opener_out= get_current_posj()    # 다시 돌려놓을때 위치를 알아내기 위해 저장
         # movel([0, 0, 13, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # movel([15, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
         time.sleep(0.5)
@@ -185,7 +186,7 @@ def main(args=None):
         
 
         while (not check_force_condition(DR_AXIS_X, max = 8) or not check_force_condition(DR_AXIS_Y, max = 3)):
-            print("Waiting for an external force greater than 12")
+            print("Waiting for an external force greater than 8")
             time.sleep(0.5)
             pass
 
@@ -200,17 +201,39 @@ def main(args=None):
 
         # 병뚜껑 따기
         print('Starting open lid')
-        amovel([-opener_length, opener_length, 0, 0, 0, -89], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
+        # amovel([-10, opener_length, 0, 0, 0, -89], vel=VELOCITY, acc=ACC, ref=DR_TOOL)
 
-        while not check_position_condition(axis=DR_AXIS_Y, max=opener_length*open_degree_to_rad, ref=DR_TOOL,mod=DR_MV_MOD_REL):
-                print("opening!!")
-                time.sleep(0.5)
-                pass
+        # while not check_position_condition(axis=DR_AXIS_Y, max=opener_length*open_degree_to_rad, ref=DR_TOOL,mod=DR_MV_MOD_REL):
+        #         print("opening!!")
+        #         time.sleep(0.5)
+        #         pass
 
-        drl_script_stop(DR_QSTOP)
+        # drl_script_stop(DR_QSTOP)
+
+        print("Starting task_compliance_ctrl for lid open")
+        task_compliance_ctrl(stx=[500, 500, 500, 100, 100, 100])
+        time.sleep(0.5)
+
+        print("Starting set_desired_force for lid open")
+        set_desired_force(fd=[-5, 5, 5, 0, 0, -5], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
+
+        while not check_force_condition(DR_AXIS_C, min= 4):
+            print("Waiting for an external force greater than 4")
+            time.sleep(0.5)
+            pass
+        
+        print('Finish open!!')
+
+        print("Starting release_force by finish open")
+        release_force()
+        time.sleep(0.5)
+        
+        print("Starting release_compliance_ctrl by finish open")      
+        release_compliance_ctrl()
 
         # 병따개 다시 갖다 놓기
         print("Move to original place")
+        movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         movesj([pos_to_opener_1, c_pos_opener_out], vel=VELOCITY, acc=ACC)
         time.sleep(0.5)
 

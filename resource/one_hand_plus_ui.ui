@@ -22,6 +22,11 @@
      <height>581</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
    <property name="currentIndex">
     <number>0</number>
    </property>
@@ -38,6 +43,11 @@
        <height>141</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>유리</string>
      </property>
@@ -51,6 +61,11 @@
        <height>141</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>패트병</string>
      </property>
@@ -58,7 +73,7 @@
     <widget class="QLabel" name="plastic_bottle_img">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>130</x>
        <y>50</y>
        <width>201</width>
        <height>281</height>
@@ -71,7 +86,7 @@
     <widget class="QLabel" name="glass_img">
      <property name="geometry">
       <rect>
-       <x>440</x>
+       <x>460</x>
        <y>50</y>
        <width>201</width>
        <height>281</height>
@@ -95,6 +110,15 @@
        <height>141</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(222, 221, 218);
+border-radius: 5px;</string>
+     </property>
      <property name="text">
       <string>야채</string>
      </property>
@@ -107,6 +131,11 @@
        <width>261</width>
        <height>141</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>빵류</string>

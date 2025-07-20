@@ -44,6 +44,8 @@ class WindowClass(QMainWindow):
         ui_filename = 'one_hand_plus_ui.ui'
         # topic_name = 'cmd_vel'
         # service_name = 'led_control'
+        style = "background-color: rgb(222, 221, 218);\
+                border-radius: 5px;"
         
         _, package_path = get_resource('packages', pkg_name)
         ui_file = os.path.join(package_path, 'share', pkg_name, 'resource', ui_filename)
@@ -57,11 +59,15 @@ class WindowClass(QMainWindow):
         # self.setupUi(self)
         self.setWindowTitle("One Hand+")
 
-        self.plastic_bottle_img.setPixmap(QPixmap(os.path.join(img_dir, 'bottle_water.png')).scaled(121, 161, Qt.KeepAspectRatio))
-        self.glass_img.setPixmap(QPixmap(os.path.join(img_dir, 'glass.png')).scaled(121, 161, Qt.KeepAspectRatio))
-        self.vegetable_img.setPixmap(QPixmap(os.path.join(img_dir, 'vegetable_img.jpg')).scaled(121, 161, Qt.KeepAspectRatio))
-        self.bread_img.setPixmap(QPixmap(os.path.join(img_dir, 'bread.png')).scaled(121, 161, Qt.KeepAspectRatio))
+        self.plastic_bottle_img.setPixmap(QPixmap(os.path.join(img_dir, 'bottle_water.png')).scaled(201, 281, Qt.KeepAspectRatio))
+        self.glass_img.setPixmap(QPixmap(os.path.join(img_dir, 'glass.png')).scaled(201, 281, Qt.KeepAspectRatio))
+        self.vegetable_img.setPixmap(QPixmap(os.path.join(img_dir, 'vegetable_img.jpg')).scaled(201, 281, Qt.KeepAspectRatio))
+        self.bread_img.setPixmap(QPixmap(os.path.join(img_dir, 'bread.png')).scaled(201, 281, Qt.KeepAspectRatio))
 
+        self.plastic_bottle_btn.setStyleSheet(style)
+        self.glass_btn.setStyleSheet(style)
+        self.bread_btn.setStyleSheet(style)
+        self.vegetable_btn.setStyleSheet(style)
 
         self.plastic_bottle_btn.clicked.connect(self.send_plastic_cmd)
         self.glass_btn.clicked.connect(self.send_glass_cmd)

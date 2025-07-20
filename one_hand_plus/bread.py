@@ -137,36 +137,36 @@ def main(args=None):
         # movej(mov_1, vel=VELOCITY, acc=ACC)
         # movej(Chopping, vel=VELOCITY, acc=ACC)
         time.sleep(0.1)
-
         # for _ in range(1):
         # 빵 좌표로 이동
         # movej(Chopping, vel=VELOCITY, acc=ACC)      
         # movel([0, 0, -10, 0, -20, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         task_compliance_ctrl(stx=[1000, 1000, 300, 100, 100, 100])       # 힘제어 키고 하강
-        time.sleep(0.5)
+        time.sleep(0.3)
         set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-
+        time.sleep(0.3)
         # while not check_force_condition(DR_AXIS_Z, max=11):      # 빵 만나면 periodic 비동기 실행
         #     print("Starting check_force_condition")
         #     time.sleep(0.5)
         #     pass
-        while not check_position_condition(DR_AXIS_Z, min=84.50, ref=DR_BASE):
+        while not check_position_condition(DR_AXIS_Z, min=80, ref=DR_BASE):
             print("Starting check_position_condition")
             time.sleep(0.5)
             pass
         
         periodic_amp = [0, 15.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=10, ref=DR_TOOL)
+        amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=15, ref=DR_TOOL)
 
-        while not check_position_condition(DR_AXIS_Z, min=45.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+        while not check_position_condition(DR_AXIS_Z, min=40.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
             print("Periodic check_position_condition")
             print(get_current_posx())
             time.sleep(0.5)
             pass
         release_force()
-        time.sleep(0.5)
+        time.sleep(0.3)
         release_compliance_ctrl()
+        time.sleep(0.3)
         
         
         set_ref_coord(DR_BASE)
@@ -189,32 +189,37 @@ def main(args=None):
         movej(Upper_knife, vel=VELOCITY, acc=ACC)
 
         # 천천히 하강(순응제어키고) periodic 비동기
-        # set_ref_coord(DR_BASE)
-        # periodic_amp_2 = [0, 5.0, 0.0, 0.0, 0.0, 0.0]
-        # amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=2, ref=DR_TOOL)
-        # task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
-        # set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        # # periodic_amp_1 = [10.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        # # amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=2, ref=DR_TOOL)
+        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+        time.sleep(0.3)
+        set_desired_force(fd=[0, 0, -20, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        time.sleep(0.3)
+        set_ref_coord(DR_BASE)
+        periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
+        amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=2, ref=DR_BASE)
+        # periodic_amp_1 = [10.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        # amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=2, ref=DR_TOOL)
+
+        movel([0, 0, -10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
 
-        # # 좌표지정위치에서 periodic 끄기
-        # while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
-        #     print("Periodic check_position_condition")
-        #     time.sleep(0.5)
-        #     pass
+        # 좌표지정위치에서 periodic 끄기
+        while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
+            print("Periodic check_position_condition")
+            time.sleep(0.5)
+            pass
 
-        # # checkforce로 끝까지 밀어넣고 그리퍼 열기
-        # while not check_force_condition(DR_AXIS_Z, max=15):
-        #         time.sleep(0.5)
-        #         print("check_force_condition")
-        #         pass
-        # release_force()
-        
-        # release_compliance_ctrl()
-
-        movel([0, 0, -130, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        # checkforce로 끝까지 밀어넣고 그리퍼 열기
+        while not check_force_condition(DR_AXIS_Z, max=5):
+                time.sleep(0.5)
+                print("check_force_condition")
+                pass
+        release_force()
+        time.sleep(0.3)
+        release_compliance_ctrl()
+        time.sleep(0.3)
         release()
+
+        set_ref_coord(DR_BASE)
         movel([-50, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         movej(JReady, vel=VELOCITY, acc=ACC)    # 홈위치
         break

@@ -20,6 +20,7 @@ from python_qt_binding.QtWidgets import QShortcut, QWidget, QMainWindow, QApplic
 import rclpy
 from rclpy.qos import QoSProfile
 from std_srvs.srv import SetBool
+from std_msgs.msg import String
 
 # # High DPI Scaling 비활성화 및 고정 배율 설정
 # os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"  # 자동 스케일링 비활성화
@@ -49,6 +50,10 @@ class WindowClass(QMainWindow):
         loadUi(ui_file, self)
         img_dir = os.path.join(package_path, 'share', pkg_name, 'resource', 'img')  # ✅ 이미지 디렉토리
 
+        rclpy.init(args=None)
+        self.node = rclpy.create_node("ui_task_sender")
+        self.cmd_pub = self.node.create_publisher(String, "/robot_task_cmd", 10)
+
         # self.setupUi(self)
         self.setWindowTitle("One Hand+")
 
@@ -58,33 +63,30 @@ class WindowClass(QMainWindow):
         self.bread_img.setPixmap(QPixmap(os.path.join(img_dir, 'bread.png')).scaled(121, 161, Qt.KeepAspectRatio))
 
 
-        self.plastic_bottle_btn.clicked.connect(self.plastic_task)
-        self.glass_btn.clicked.connect(self.glass_task)
+        self.plastic_bottle_btn.clicked.connect(self.send_plastic_cmd)
+        self.glass_btn.clicked.connect(self.send_glass_cmd)
 
-        self.vegetable_btn.clicked.connect(self.vegetabel_task)
-        self.bread_btn.clicked.connect(self.bread_task)
+        self.bread_btn.clicked.connect(self.send_bread_cmd)
+        self.vegetable_btn.clicked.connect(self.send_vegetable_cmd)
 
 
+    def send_cmd(self, cmd_str):
+        msg = String()
+        msg.data = cmd_str
+        self.cmd_pub.publish(msg)
+        print(f"[UI] Published command: {cmd_str}")
 
-    def plastic_task(self):
-        print('open plastic')
-        try:
-            from one_hand_plus import plastic_bottle_test
-            plastic_bottle_test.main()
-        except Exception as e:
-            print(f"[Error] Failed to execute plastic task: {e}")
+    def send_plastic_cmd(self):
+        self.send_cmd("plastic")
 
-    def glass_task(self):
-        print('open glass')
-        pass
+    def send_glass_cmd(self):
+        self.send_cmd("glass")
 
-    def vegetabel_task(self):
-        print('vegetable')
-        pass
+    def send_bread_cmd(self):
+        self.send_cmd("bread")
 
-    def bread_task(self):
-        print('bread')
-        pass
+    def send_vegetable_cmd(self):
+        self.send_cmd("vegetable")
 
 def main():
     app = QApplication(sys.argv)

@@ -45,6 +45,8 @@ def main(args=None):
             DR_MV_MOD_REL,
             DR_MV_MOD_ABS,
             DR_AXIS_Z,
+            DR_AXIS_Y,
+            DR_AXIS_X,
             DR_BASE,
             DR_TOOL,
         )
@@ -95,13 +97,15 @@ def main(args=None):
     #######################################################################
 
     # release()
-    grip()
+    # grip()
     
     while rclpy.ok():
         
         # 홈위치
+        release()
         print(f"Moving to joint position: {JReady}")
         movej(JReady, vel=VELOCITY, acc=ACC)
+        grip()
 
         # 병뚜껑 위치
         print(f"Moving to task position: {pos_glass_bottle}")
@@ -157,6 +161,8 @@ def main(args=None):
 
         find_opener_pos,_ = get_current_posx()
         print(f'opener position x: {find_opener_pos[0]}, y: {find_opener_pos[1]} , z: {find_opener_pos[2]}, a: {find_opener_pos[3]}, b: {find_opener_pos[4]} , c: {find_opener_pos[5]}')
+        
+        # break
         # c_pos[1] -= 200
         # movel(c_pos, vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_ABS)
 
@@ -166,10 +172,10 @@ def main(args=None):
         time.sleep(0.5)
 
         print("Starting set_desired_force for pos_open")
-        set_desired_force(fd=[15, 15, -15, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        set_desired_force(fd=[-15, 5, -10, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
         
 
-        while not check_force_condition(DR_AXIS_Z, max = 12):
+        while (not check_force_condition(DR_AXIS_X, max = 8) or not check_force_condition(DR_AXIS_Y, max = 3)):
             print("Waiting for an external force greater than 12")
             time.sleep(0.5)
             pass
@@ -182,7 +188,10 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl by find opener position")      
         release_compliance_ctrl()
-        
+
+        # 병뚜껑 따기
+        # movel()
+
         break
 
     rclpy.shutdown()

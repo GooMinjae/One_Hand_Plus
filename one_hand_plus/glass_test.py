@@ -218,8 +218,10 @@ def main(args=None):
         set_desired_force(fd=[-5, 5, 5, 0, 0, -15], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
 
         while not check_force_condition(DR_AXIS_C, min= 10):
-            print("Waiting for an external force greater than 4")
+            print("Waiting for an external force greater than 10")            
             time.sleep(0.5)
+            c_force = get_tool_force(DR_TOOL)
+            print(f'rz: {c_force[5]} ')
             pass
         
         print('Finish open!!')

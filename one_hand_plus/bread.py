@@ -231,7 +231,7 @@ def main(args=None):
         time.sleep(0.3)
         release_compliance_ctrl()
         time.sleep(0.3)
-        drl_script_stop(DR_SSTOP)
+        # drl_script_stop(DR_SSTOP)
         release()
 
         set_ref_coord(DR_BASE)

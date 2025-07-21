@@ -88,13 +88,16 @@ def main(args=None):
     ############################# 위치 저장 #################################
 
     # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
-    pos_glass_bottle = posx([495.38, 143.45, 311.82, 8.58, -179.48, 8.7])
+    pos_glass_bottle = posx([495.38, 137., 311.82, 8.58, -179.48, 8.7])
     pos_to_opener_1 = posj([-128.85, 0.01, 90.0, 0.0, 90, 0.0])
     pos_to_opener_2 = posj([-164.17, 26.14, 95.48, -2.38, 15.98, 0.0])
     # pos_to_opener_3 = posj([-168.4, 44.25, 99.59, 18.99, -25.26, -100.67])
     pos_to_opener_3 = posj([-163.03, 50.58, 102.46, 28.39, -47.42, -100.67])  
 
-    pos_cap_for_force = posj([156.86, -23.76, -109.9, 93.24, -81.58, 99.71-180])
+    pos_cap_for_force = posj([156.86-360, -23.76, -109.9, 93.24, -81.58, 99.71-180])
+    pos_cap_for_force_1 = posj([-178.69, -3.81, 95.93, -7.73, 72.49, -100.67])
+    pos_cap_for_force_2 = posj([-184.32, -8.81, -50.93, 14.23, 73.04, -100.67])
+    pos_cap_for_force_3 = posj([-214.51, -0.80, -113.54, 78.42, -44.66, -82.85])
 
     JReady = posj([0, 0, 90, 0, 90, 0])
 
@@ -167,7 +170,7 @@ def main(args=None):
         time.sleep(0.5)
 
         # 병따개 거는 위치 찾기
-        movesj([pos_to_opener_1, pos_cap_for_force], vel=VELOCITY, acc=ACC)
+        movesj([pos_cap_for_force_1, pos_cap_for_force_2, pos_cap_for_force_3, pos_cap_for_force], vel=VELOCITY, acc=ACC)
 
         find_opener_pos,_ = get_current_posx()
         print(f'opener position x: {find_opener_pos[0]}, y: {find_opener_pos[1]} , z: {find_opener_pos[2]}, a: {find_opener_pos[3]}, b: {find_opener_pos[4]} , c: {find_opener_pos[5]}')
@@ -182,7 +185,8 @@ def main(args=None):
         time.sleep(0.5)
 
         print("Starting set_desired_force for pos_open")
-        set_desired_force(fd=[-15, 5, -10, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        set_desired_force(fd=[-15, 5, -5, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        time.sleep(0.5)
         
 
         while (not check_force_condition(DR_AXIS_X, max = 8) or not check_force_condition(DR_AXIS_Y, max = 3)):
@@ -198,6 +202,7 @@ def main(args=None):
         
         print("Starting release_compliance_ctrl by find opener position")      
         release_compliance_ctrl()
+        time.sleep(0.5)
 
         # 병뚜껑 따기
         print('Starting open lid')
@@ -209,15 +214,17 @@ def main(args=None):
         #         pass
 
         # drl_script_stop(DR_QSTOP)
+        movel(posx(5, -3, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
 
         print("Starting task_compliance_ctrl for lid open")
         task_compliance_ctrl(stx=[500, 500, 500, 100, 100, 100])
         time.sleep(0.5)
 
         print("Starting set_desired_force for lid open")
-        set_desired_force(fd=[-5, 5, 5, 0, 0, -15], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
+        set_desired_force(fd=[-5, 5, 5, 0, 0, -30], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
+        time.sleep(0.5)
 
-        while not check_force_condition(DR_AXIS_C, min= 10):
+        while not check_force_condition(DR_AXIS_C, min= 4):
             print("Waiting for an external force greater than 10")            
             time.sleep(0.5)
             c_force = get_tool_force(DR_TOOL)
@@ -229,14 +236,18 @@ def main(args=None):
         print("Starting release_force by finish open")
         release_force()
         time.sleep(0.5)
+
+
         
         print("Starting release_compliance_ctrl by finish open")      
         release_compliance_ctrl()
+        time.sleep(0.5)
 
         # 병따개 다시 갖다 놓기
         print("Move to original place")
         movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        movesj([pos_to_opener_1, c_pos_opener_out], vel=VELOCITY, acc=ACC)
+        movesj([pos_cap_for_force_3, pos_cap_for_force_2, pos_cap_for_force_1, c_pos_opener_out], vel=VELOCITY, acc=ACC)
+        # movesj([pos_to_opener_1, c_pos_opener_out], vel=VELOCITY, acc=ACC)
         time.sleep(0.5)
 
         print("Adjust position for original place")

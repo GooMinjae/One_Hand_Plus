@@ -101,9 +101,10 @@ def main(args=None):
 
     JReady = posj([0, 0, 90, 0, 90, 0])
 
-    opener_length = 85
-    open_degree = 30
-    open_degree_to_rad = math.sin(open_degree)
+    # tmp_pos_lid = posx
+    # opener_length = 85
+    # open_degree = 30
+    # open_degree_to_rad = math.sin(open_degree)
 
 
     #######################################################################
@@ -139,6 +140,8 @@ def main(args=None):
         # 병뚜껑 위치 저장
         c_pos_lid, _ = get_current_posx()
         print(f"Lid position x: {c_pos_lid[0]}, y: {c_pos_lid[1]} , z: {c_pos_lid[2]}, a: {c_pos_lid[3]}, b: {c_pos_lid[4]} , c: {c_pos_lid[5]}")
+
+        break   ##### 초기 저장값 추출을 위해
 
         print("Starting release_force")
         release_force()

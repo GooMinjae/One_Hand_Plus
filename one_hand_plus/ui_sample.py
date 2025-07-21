@@ -44,8 +44,20 @@ class WindowClass(QMainWindow):
         ui_filename = 'one_hand_plus_ui.ui'
         # topic_name = 'cmd_vel'
         # service_name = 'led_control'
-        style = "background-color: rgb(222, 221, 218);\
-                border-radius: 5px;"
+        # style = "background-color: rgb(222, 221, 218);\
+        #         border-radius: 5px;"
+        style = """
+                QPushButton {
+                    background-color: rgb(222, 221, 218);
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: rgb(200, 200, 200);
+                }
+                QPushButton:pressed {
+                    background-color: rgb(170, 170, 170);
+                }
+            """
         
         _, package_path = get_resource('packages', pkg_name)
         ui_file = os.path.join(package_path, 'share', pkg_name, 'resource', ui_filename)

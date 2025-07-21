@@ -400,7 +400,7 @@ def run_plastic_task():
     print('Finish import')
 
     # pos = posx([496.06, 93.46, 96.92, 20.75, 179.00, 19.09])
-    pos_bottle = posj([15.40, 23.25, 47.42, -0.39, 109.19, 1.74])
+    pos_bottle = posj([14.32, 24.66, 45.97, -0.36, 109.86, 1.00])
     pos_cap_pre = posx([502.66, 17.85, 276.85, 143.82, 179.79, -37.07])
     pos_cap = posx([502.66, 17.85, 112.85, 143.82, 179.79, -37.07])
 
@@ -435,7 +435,7 @@ def run_plastic_task():
         
         grip()
 
-    def force_control():
+    def force_control(f_d=[0, 0, -15, 0, 0, 0], _max=12):
         global global_c_pos
 
         print("Starting task_compliance_ctrl")
@@ -443,11 +443,11 @@ def run_plastic_task():
         time.sleep(0.5)
 
         print("Starting set_desired_force")
-        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        set_desired_force(fd=f_d, dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
 
         # 외력이 0 이상 5 이하이면 0
         # 외력이 5 초과이면 -1
-        while not check_force_condition(DR_AXIS_Z, max=12):
+        while not check_force_condition(DR_AXIS_Z, max=_max):
             print("Waiting for an external force greater than 5 ")
             time.sleep(0.5)
             pass
@@ -499,6 +499,17 @@ def run_plastic_task():
         grip()
         movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        if get_tool_force()[2] < 3:
+            movel([0, 0, -15, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            release()
+            movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+            grip()
+            movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+            movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+
+        # while True:
+        #     print(get_tool_force())
+            # if get_tool_force()[2] < 
 
         
     def close_lid(motion):
@@ -563,7 +574,6 @@ def run_plastic_task():
         print('start node')
         start()
         grip_lid_for_open()
-
         open_lid('open')
 
         movel(pos_cap_pre, vel=VELOCITY, acc=ACC,ref=DR_BASE, mod=DR_MV_MOD_ABS)
@@ -572,6 +582,8 @@ def run_plastic_task():
         force_control()
         cap_release_pos = global_c_pos
         release()
+
+        movel(posx(0, 0, 50, 0, 0, 0), vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         movej(JReady, vel=VELOCITY, acc=ACC) # return to the original spot
 #/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -597,7 +609,7 @@ def run_plastic_task():
 
         example_amp = [-4.0, -4.0, 0.0, 0.0, 0.0, 0.0]
         print(f"Starting amove_periodic: {example_amp}")
-        amove_periodic(amp=example_amp, period=5, atime=0.02, repeat=3, ref=DR_TOOL)
+        amove_periodic(amp=example_amp, period=5, atime=0.02, repeat=5, ref=DR_TOOL)
 
         time.sleep(1.0)
 
@@ -617,7 +629,7 @@ def run_plastic_task():
         movej(pos_bottle, vel=VELOCITY, acc=ACC)
         grip()
 
-        force_control()
+        force_control(f_d=[0, 0, -20, 0, 0, 0], _max=18)
 
         movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         
@@ -632,9 +644,7 @@ def run_plastic_task():
 
         
         movej(JReady, vel=VELOCITY, acc=ACC) # return to home 
-
         # break
-
     except KeyboardInterrupt:
         release_force()
         time.sleep(0.5)

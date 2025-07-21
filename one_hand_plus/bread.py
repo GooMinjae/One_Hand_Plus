@@ -188,7 +188,7 @@ def main(args=None):
         # release_compliance_ctrl()
 
         # movej(Bread_push, vel=VELOCITY, acc=ACC)     # 빵본체를 밀 위치로 이동 후 순응제어 키고 밀기
-        # task_compliance_ctrl(stx=[500, 1000, 1000, 100, 100, 100]) 
+        # task_compliance_ctrl(stx=[300, 2000, 2000, 100, 100, 100]) 
         # movel([140, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # release_compliance_ctrl()
 
@@ -197,6 +197,7 @@ def main(args=None):
         # movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
         # movej(Upper_knife, vel=VELOCITY, acc=ACC)
         movesj([Vertical_knife, Upper_knife], vel=VELOCITY, acc=ACC)
+        movel([0, 0, 0, 0, -10, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
 
         # 천천히 하강(순응제어키고) periodic 비동기
@@ -207,21 +208,21 @@ def main(args=None):
         time.sleep(0.5)
         print("2")
         set_ref_coord(DR_BASE)
-        periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
-        print("3")
-        amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
+        # periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
+        # print("3")
+        # amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
         # periodic_amp_1 = [5.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         # amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
 
 
-        # 좌표지정위치에서 periodic 끄기
-        while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
-            # print("Periodic check_position_condition")
-            time.sleep(0.5)
-            pass
+        # # 좌표지정위치에서 periodic 끄기
+        # while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
+        #     # print("Periodic check_position_condition")
+        #     time.sleep(0.5)
+        #     pass
 
         # checkforce로 끝까지 밀어넣고 그리퍼 열기
-        while not check_force_condition(DR_AXIS_Z, max=5):
+        while not check_force_condition(DR_AXIS_Z, max=10):
             time.sleep(0.5)
             print("check_force_condition")
             pass

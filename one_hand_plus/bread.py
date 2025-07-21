@@ -32,6 +32,7 @@ def main(args=None):
             set_tool,
             set_tcp,
             get_current_posx,
+            get_current_posj,
             set_digital_output,
             get_digital_input,
             amove_periodic,
@@ -43,6 +44,7 @@ def main(args=None):
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
             DR_MV_MOD_ABS,
+            DR_FC_MOD_ABS,
             DR_AXIS_Z,
             DR_AXIS_Y,
             DR_BASE,
@@ -92,6 +94,7 @@ def main(args=None):
     Bread_push = posj([-31.52, 44.3, 53.66, -0.25, 82.03,149.44]) ################################ 사용할 시 티칭 필요 #########################
     Vertical_knife = posj([-27.49, 3.4, 89.29, -8.28, 2.97,99.88])
     Upper_knife = posj([-3.24, 12.65, 100.93, -4.09, -23.28, 93.76])
+
     ##########################################
     x_Knife = posx([0, 0, 90, 0, 90, 0])
     x_Chopping = posx([0, 0, 90, 0, 90, 0])
@@ -132,6 +135,7 @@ def main(args=None):
 
         grip()      # 그리퍼 닫아서 칼집고 z축으로 들어 올리기
         movel([0, 0, 160, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        Upper_knife = get_current_posj()
 
         ## fix
         movesj([mov_1, Chopping, Slope_knife], vel=VELOCITY, acc=ACC)
@@ -147,7 +151,7 @@ def main(args=None):
         time.sleep(0.3)
         set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
         time.sleep(0.3)
-        while not check_force_condition(DR_AXIS_Z, max=6):      # 빵 만나면 periodic 비동기 실행
+        while not check_force_condition(DR_AXIS_Z, max=4):      # 빵 만나면 periodic 비동기 실행
             print("Starting check_force_condition")
             time.sleep(0.5)
             pass
@@ -159,9 +163,8 @@ def main(args=None):
         periodic_amp = [0, 15.0, 0.0, 0.0, 0.0, 0.0]
         amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=20, ref=DR_TOOL)
 
-        while not check_position_condition(DR_AXIS_Z, min=40.50, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
-            print("Periodic check_position_condition")
-            print(get_current_posx())
+        while not check_position_condition(DR_AXIS_Z, min=36.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+            # print("Periodic check_position_condition")
             time.sleep(0.5)
             pass
         # time.sleep(1.0)
@@ -188,35 +191,40 @@ def main(args=None):
         # task_compliance_ctrl(stx=[500, 1000, 1000, 100, 100, 100]) 
         # movel([140, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         # release_compliance_ctrl()
-            
-        
+
+
         # 칼 세우고 칼집 위치로 이동
-        movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
-        movej(Upper_knife, vel=VELOCITY, acc=ACC)
+        # movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
+        # movej(Upper_knife, vel=VELOCITY, acc=ACC)
+        movesj([Vertical_knife, Upper_knife], vel=VELOCITY, acc=ACC)
+
 
         # 천천히 하강(순응제어키고) periodic 비동기
         task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
-        time.sleep(0.3)
-        set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        time.sleep(0.3)
+        time.sleep(0.5)
+        print("1")
+        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
+        time.sleep(0.5)
+        print("2")
         set_ref_coord(DR_BASE)
         periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=periodic_amp_2, period=1.0, atime=0.02, repeat=20, ref=DR_BASE)
-        periodic_amp_1 = [5.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
+        print("3")
+        amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
+        # periodic_amp_1 = [5.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        # amove_periodic(amp=periodic_amp_1, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
 
 
         # 좌표지정위치에서 periodic 끄기
         while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
-            print("Periodic check_position_condition")
+            # print("Periodic check_position_condition")
             time.sleep(0.5)
             pass
 
         # checkforce로 끝까지 밀어넣고 그리퍼 열기
         while not check_force_condition(DR_AXIS_Z, max=5):
-                time.sleep(0.5)
-                print("check_force_condition")
-                pass
+            time.sleep(0.5)
+            print("check_force_condition")
+            pass
         
         release_force()
         time.sleep(0.3)

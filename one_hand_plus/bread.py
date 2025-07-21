@@ -163,7 +163,7 @@ def main(args=None):
         periodic_amp = [0, 15.0, 0.0, 0.0, 0.0, 0.0]
         amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=20, ref=DR_TOOL)
 
-        while not check_position_condition(DR_AXIS_Z, min=36.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
+        while not check_position_condition(DR_AXIS_Z, min=38.00, ref=DR_BASE):    # 좌표지정위치에서 빵 썰기 멈춤 + 힘제어 끄기(순응제어는 유지)
             # print("Periodic check_position_condition")
             time.sleep(0.5)
             pass
@@ -197,7 +197,7 @@ def main(args=None):
         # movej(Vertical_knife, vel=VELOCITY, acc=ACC)     
         # movej(Upper_knife, vel=VELOCITY, acc=ACC)
         movesj([Vertical_knife, Upper_knife], vel=VELOCITY, acc=ACC)
-        movel([0, 0, 0, 0, -10, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movel([-5, -5, 10, 0, -10, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
 
         # 천천히 하강(순응제어키고) periodic 비동기
@@ -207,7 +207,7 @@ def main(args=None):
         set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
         time.sleep(0.5)
         print("2")
-        set_ref_coord(DR_BASE)
+        # set_ref_coord(DR_BASE)
         # periodic_amp_2 = [0, 10.0, 0.0, 0.0, 0.0, 0.0]
         # print("3")
         # amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)

@@ -370,7 +370,6 @@ def run_plastic_task():
             release_compliance_ctrl,
             release_force,
             check_force_condition,
-            check_position_condition,
             get_tool_force,
             task_compliance_ctrl,
             set_desired_force,
@@ -380,18 +379,14 @@ def run_plastic_task():
             set_digital_output,
             get_digital_input,
             amove_periodic,
-            drl_script_stop,
-            move_periodic,
             movej,
             movel,
-            amovel,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
             DR_MV_MOD_ABS,
             DR_AXIS_Z,
             DR_BASE,
             DR_TOOL,
-            DR_SSTOP,
             DR_AXIS_X,
             DR_FC_MOD_ABS,
         )
@@ -540,43 +535,7 @@ def run_plastic_task():
 
         grip()
 
-# //////////////////////////////////////////////////////////////////////////////
-    def check_force_and_release():
-        print("Starting task_compliance_ctrl")
-        task_compliance_ctrl(stx=[3000, 3000, 300, 200, 200, 200])
-        time.sleep(0.5)
 
-        print("Start set_desired_force")
-        set_desired_force(fd=[0, 0, -25, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
-        print("Confirm set_desired_force")
-        time.sleep(0.5)
-        
-        while True:
-            print("Waiting for an external force greater than 5 ")
-            print(get_tool_force())
-            if not check_force_condition(DR_AXIS_Z, min=24, ref=DR_BASE):
-                break
-        # set_desired_force(fd=[0, 0, -12, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
-
-        # # 외력이 0 이상 5 이하이면 0
-        # # 외력이 5 초과이면 -1
-        # while not check_force_condition(DR_AXIS_Z, max=10, ref=DR_BASE):
-        #     print("Waiting for an external force greater than 10 ")
-        #     # c_pos, _ = get_current_posx()
-        #     # time.sleep(0.5)
-        #     break
-
-
-        print("Starting release_force")
-        release_force()
-        time.sleep(0.5)
-        
-        print("Starting release_compliance_ctrl")      
-        release_compliance_ctrl()
-
-        release()
-
-        #///////////////////////////////////////////////////////////////////////////////
     print('start set tool')
     try:
         set_tool("Tool Weight_2FG")

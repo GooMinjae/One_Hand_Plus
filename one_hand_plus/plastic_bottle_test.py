@@ -360,10 +360,15 @@ DR_init.__dsr__model = ROBOT_MODEL
 
 OFF, ON = 0, 1
 global_c_pos = [0] * 6
-
+is_task_running = False
 
 def run_plastic_task():
     print('receive topic')
+    global is_task_running
+    if is_task_running:
+        print("Task already running. Skipping.")
+        return
+    is_task_running = True
 
     try:
         from DSR_ROBOT2 import (
@@ -651,6 +656,9 @@ def run_plastic_task():
         release_compliance_ctrl()
         time.sleep(0.5)
 
+    finally:
+        is_task_running = False
+
 
 def callback(msg):
     if msg.data == "plastic":
@@ -672,9 +680,15 @@ def main(args=None):
         while rclpy.ok():
             executor.spin_once(timeout_sec=0.1)
 
+            # if not task_queue.empty():
+            #     task = task_queue.get()
+            #     task()  # 같은 스레드에서 실행됨 = 안전함
             if not task_queue.empty():
                 task = task_queue.get()
-                task()  # 같은 스레드에서 실행됨 = 안전함
+                # 👉 새 스레드에서 task 실행
+                thread = threading.Thread(target=task)
+                thread.start()
+
     finally:
         node.destroy_node()
         rclpy.shutdown()

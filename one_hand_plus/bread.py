@@ -79,6 +79,28 @@ def main(args=None):
         # wait_digital_input(1)
         time.sleep(1.0)
 
+    def NoBread():
+        release_force()
+        time.sleep(0.3)
+        release_compliance_ctrl()
+        time.sleep(0.3)
+        drl_script_stop(DR_SSTOP)
+        print("No bread detected")
+        movel([0, 0, 100, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        ready_to_go = input("check bread")
+        time.sleep(1.0)
+        movel([0, 0, -50, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        task_compliance_ctrl(stx=[1000, 500, 300, 100, 100, 100])       # 힘제어 키고 하강
+        time.sleep(0.3)
+        set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        time.sleep(0.3)
+        while not check_force_condition(DR_AXIS_Z, max=4):      # 빵 만나면 periodic 비동기 실행
+            print("Starting check_force_condition")
+            time.sleep(0.5)
+            if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:
+                NoBread()
+            pass
+
     set_tool("Tool Weight_2FG")
     set_tcp("2FG_TCP")
 # 96.45
@@ -154,6 +176,8 @@ def main(args=None):
         while not check_force_condition(DR_AXIS_Z, max=4):      # 빵 만나면 periodic 비동기 실행
             print("Starting check_force_condition")
             time.sleep(0.5)
+            if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:
+                NoBread()
             pass
         # while not check_position_condition(DR_AXIS_Z, min=80, ref=DR_BASE):
         #     print("Starting check_position_condition")

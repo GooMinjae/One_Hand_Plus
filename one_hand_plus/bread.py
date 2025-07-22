@@ -1,6 +1,7 @@
 import time
 import rclpy
 import DR_init
+import rclpy.logging
 from std_msgs.msg import String
 import threading
 from queue import Queue
@@ -34,6 +35,7 @@ def run_bread_task():
             release_force,
             check_force_condition,
             check_position_condition,
+            get_tool_force,
             task_compliance_ctrl,
             set_desired_force,
             set_tool,
@@ -81,7 +83,15 @@ def run_bread_task():
         drl_script_stop(DR_SSTOP)
         print("No bread detected")
         movel([0, 0, 100, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        ready_to_go = input("check bread")
+        # ready_to_go = input("check bread")
+
+        # while get_tool_force()[0] > 0 or get_tool_force()[1] > 0 or get_tool_force()[2] > 0:
+        # rclpy.logging(get_tool_force())
+
+        while get_tool_force()[2] > -2:
+            print(get_tool_force())
+            pass
+
         time.sleep(1.0)
         movel([0, 0, -50, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         task_compliance_ctrl(stx=[1000, 500, 300, 100, 100, 100])

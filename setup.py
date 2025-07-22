@@ -12,6 +12,7 @@ setup(
         # ROS 2 필수 정보
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         # UI 파일 포함
         ('share/' + package_name + '/resource', ['resource/one_hand_plus_ui.ui']),
         # 이미지 파일 전체 포함 (glob)

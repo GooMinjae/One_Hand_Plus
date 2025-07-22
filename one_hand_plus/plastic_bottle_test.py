@@ -155,7 +155,9 @@ def run_plastic_task():
         grip()
         movel([0, 0, 4 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         movel([0, 0, 20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        if get_tool_force()[2] < 3:
+
+        # if get_tool_force()[2] < 3:
+        while get_tool_force()[2] < 3:
             movel([0, 0, -15, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             release()
             movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
@@ -173,11 +175,11 @@ def run_plastic_task():
 
         movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
-        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, -3 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         grip()
         movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
-        movel([0, 0, -4 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
+        movel([0, 0, -3 * direction, 0, 0, -179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         grip()
         movel([0, 0, 3 * direction, 0, 0, 179 * direction], vel=VELOCITY-40, acc=VELOCITY-40, mod=DR_MV_MOD_REL)
         release()
@@ -233,7 +235,7 @@ def run_plastic_task():
             time.sleep(0.5)
             pass
 
-        example_amp = [-4.0, -4.0, 0.0, 0.0, 0.0, 0.0]
+        example_amp = [-6.0, -6.0, 0.0, 0.0, 0.0, 0.0]
         print(f"Starting amove_periodic: {example_amp}")
         amove_periodic(amp=example_amp, period=5, atime=0.02, repeat=5, ref=DR_TOOL)
 

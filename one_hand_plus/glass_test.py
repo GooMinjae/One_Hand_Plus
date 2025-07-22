@@ -52,7 +52,8 @@ def main(args=None):
             DR_AXIS_C,
             DR_BASE,
             DR_TOOL,
-            DR_QSTOP
+            DR_QSTOP,
+            DR_SSTOP
         )
 
         from DR_common2 import posx, posj
@@ -141,7 +142,7 @@ def main(args=None):
         c_pos_lid, _ = get_current_posx()
         print(f"Lid position x: {c_pos_lid[0]}, y: {c_pos_lid[1]} , z: {c_pos_lid[2]}, a: {c_pos_lid[3]}, b: {c_pos_lid[4]} , c: {c_pos_lid[5]}")
 
-        break   ##### 초기 저장값 추출을 위해
+        # break   ##### 초기 저장값 추출을 위해
 
         print("Starting release_force")
         release_force()
@@ -217,22 +218,65 @@ def main(args=None):
         #         pass
 
         # drl_script_stop(DR_QSTOP)
-        movel(posx(5, -3, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+        amovel(posx(5, -3, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+        time.sleep(0.1)
 
-        print("Starting task_compliance_ctrl for lid open")
-        task_compliance_ctrl(stx=[500, 500, 500, 100, 100, 100])
-        time.sleep(0.5)
+        while True:
+            cnt = 1
+            print(f'rz: {get_tool_force(DR_TOOL)[5]}')
+            if get_tool_force(DR_TOOL)[5] < -10:
+                print('Wrong opener position!!')
+                drl_script_stop(DR_SSTOP)
+                movej(pos_cap_for_force, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
+                movel([0, 0, -3, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
-        print("Starting set_desired_force for lid open")
-        set_desired_force(fd=[-5, 5, 5, 0, 0, -30], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
-        time.sleep(0.5)
+                # 힘제어로 병따개 위치 맞추기
+                print("Starting task_compliance_ctrl for pos_open {cnt} try")
+                task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+                time.sleep(0.5)
 
-        while not check_force_condition(DR_AXIS_C, min= 4):
-            print("Waiting for an external force greater than 10")            
-            time.sleep(0.5)
-            c_force = get_tool_force(DR_TOOL)
-            print(f'rz: {c_force[5]} ')
-            pass
+                print("Starting set_desired_force for pos_open {cnt} try")
+                set_desired_force(fd=[-15, 5, -5, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+                time.sleep(0.5)
+                
+
+                while (not check_force_condition(DR_AXIS_X, max = 8) or not check_force_condition(DR_AXIS_Y, max = 3)):
+                    print("Waiting for an external force greater than 8")
+                    time.sleep(0.5)
+                    pass
+
+                print('Find opener position!!')
+
+                print("Starting release_force by find opener position")
+                release_force()
+                time.sleep(0.5)
+                
+                print("Starting release_compliance_ctrl by find opener position")      
+                release_compliance_ctrl()
+                time.sleep(0.5)
+
+                # 병뚜껑 따기
+                print('Starting open lid')
+
+                cnt += 1
+                pass
+            else:
+                print('Correct opener position!!')
+                break
+        # print("Starting task_compliance_ctrl for lid open")
+        # task_compliance_ctrl(stx=[500, 500, 500, 100, 100, 100])
+        # time.sleep(0.5)
+
+        # print("Starting set_desired_force for lid open")
+        # set_desired_force(fd=[-5, 5, 5, 0, 0, -30], dir=[1, 1, 1, 0, 0, 1], mod=DR_FC_MOD_REL)
+        # time.sleep(0.5)
+
+        # while not check_force_condition(DR_AXIS_C, min= 4):
+        #     print("Waiting for an external force greater than 10")            
+        #     time.sleep(0.5)
+        #     c_force = get_tool_force(DR_TOOL)
+        #     print(f'rz: {c_force[5]} ')
+        #     pass
         
         print('Finish open!!')
 

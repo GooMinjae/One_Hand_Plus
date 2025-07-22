@@ -220,6 +220,7 @@ def main(args=None):
         time.sleep(0.3)
         release_compliance_ctrl()
         time.sleep(0.3)
+        movel([0, 0, -70, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         release()
         set_ref_coord(DR_BASE)
         movel([-50, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)

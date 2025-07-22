@@ -218,24 +218,30 @@ def main(args=None):
         #         pass
 
         # drl_script_stop(DR_QSTOP)
-        amovel(posx(5, -3, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
-        time.sleep(0.1)
+        amovel(posx(10, -15, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+        time.sleep(2)
 
         while True:
             cnt = 1
-            print(f'rz: {get_tool_force(DR_TOOL)[5]}')
-            if get_tool_force(DR_TOOL)[5] < -10:
+
+            rz_force = get_tool_force(ref=DR_BASE)
+            time.sleep(0.1)
+            print(f'rz: {rz_force[2]}')
+            if rz_force[2] > 10:
                 print('Wrong opener position!!')
                 drl_script_stop(DR_SSTOP)
-                movej(pos_cap_for_force, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
-                movel([0, 0, -3, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+                movel(find_opener_pos, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
+                movel([0, -5, -5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+                find_opener_pos, _ = get_current_posx()
+                time.sleep(0.3)
+
 
                 # 힘제어로 병따개 위치 맞추기
-                print("Starting task_compliance_ctrl for pos_open {cnt} try")
+                print(f"Starting task_compliance_ctrl for pos_open {cnt} try")
                 task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
                 time.sleep(0.5)
 
-                print("Starting set_desired_force for pos_open {cnt} try")
+                print(f"Starting set_desired_force for pos_open {cnt} try")
                 set_desired_force(fd=[-15, 5, -5, 0, 0, 0], dir=[1, 1, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
                 time.sleep(0.5)
                 
@@ -258,6 +264,8 @@ def main(args=None):
                 # 병뚜껑 따기
                 print('Starting open lid')
 
+                amovel(posx(10, -15, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+                time.sleep(2)
                 cnt += 1
                 pass
             else:

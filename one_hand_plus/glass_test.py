@@ -157,7 +157,7 @@ def main(args=None):
         # diff_lid_z = c_pos_lid[2] - find_opener_pos[2]
 
         # 병 높이차이만큼 움직이기
-        movel([0, 0, criterion_diff_z, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        movel([0, 0, -criterion_diff_z, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
 
         # 힘제어로 병따개 위치 맞추기
         print("Starting task_compliance_ctrl for pos_open")

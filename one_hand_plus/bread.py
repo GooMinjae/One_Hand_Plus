@@ -79,7 +79,7 @@ def main(args=None):
         # wait_digital_input(1)
         time.sleep(1.0)
 
-    def NoBread():
+    def noBread():
         release_force()
         time.sleep(0.3)
         release_compliance_ctrl()
@@ -98,8 +98,36 @@ def main(args=None):
             print("Starting check_force_condition")
             time.sleep(0.5)
             if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:
-                NoBread()
+                noBread()
             pass
+
+    def noSheaf():
+        release_force()
+        time.sleep(0.3)
+        release_compliance_ctrl()
+        time.sleep(0.3)
+        drl_script_stop(DR_SSTOP)
+        print("can't find knife sheaf")
+        movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+        periodic_amp_2 = [10, 10, 0.0, 0.0, 0.0, 0.0]
+        amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
+        while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
+            time.sleep(0.5)
+            pass
+        drl_script_stop(DR_SSTOP)
+        time.sleep(0.5)
+        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+        time.sleep(0.5)
+        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_ABS)
+        time.sleep(0.5)
+        while not check_force_condition(DR_AXIS_Z, max=10):
+            time.sleep(0.5)
+            print("check_force_condition")
+            pass
+        if not check_position_condition(DR_AXIS_Z, min=360, ref=DR_BASE):
+            noSheaf()
+
+        
 
     set_tool("Tool Weight_2FG")
     set_tcp("2FG_TCP")
@@ -177,7 +205,7 @@ def main(args=None):
             print("Starting check_force_condition")
             time.sleep(0.5)
             if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:
-                NoBread()
+                noBread()
             pass
         # while not check_position_condition(DR_AXIS_Z, min=80, ref=DR_BASE):
         #     print("Starting check_position_condition")
@@ -250,7 +278,9 @@ def main(args=None):
             time.sleep(0.5)
             print("check_force_condition")
             pass
-        
+        if not check_position_condition(DR_AXIS_Z, min=360, ref=DR_BASE):
+            noSheaf()
+
         release_force()
         time.sleep(0.3)
         release_compliance_ctrl()

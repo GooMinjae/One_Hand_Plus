@@ -18,10 +18,13 @@ DR_init.__dsr__model = ROBOT_MODEL
 OFF, ON = 0, 1
 global_c_pos = [0] * 6
 is_task_running = False
+is_task_done = False
+task_status_pub = None
+
 
 def run_plastic_task():
     print('receive topic')
-    global is_task_running
+    global is_task_running, is_task_done
     if is_task_running:
         print("Task already running. Skipping.")
         return
@@ -191,28 +194,10 @@ def run_plastic_task():
         grip()
 
 
-    print('start set tool')
-    try:
-        set_tool("Tool Weight_2FG")
-        set_tcp("2FG_TCP")
-    except Exception as e:
-        print(f"[ERROR] Failed to set tool or tcp: {e}")
+    set_tool("Tool Weight_2FG")
+    set_tcp("2FG_TCP")
 
-    print('end set tool')
 
-    '''
-    # 450 deg, 10 mm
-    example_amp = [0.0, 0.0, 2.0, 0.0, 0.0, -90.0]
-    amove_periodic(amp=example_amp, period=8.0, atime=0.02, repeat=3, ref=DR_TOOL)
-    time.sleep(2.0)
-
-    release()
-    time.sleep(4.0)
-
-    grip()
-    '''
-
-    # while rclpy.ok():
     try:
         print('start node')
         start()
@@ -280,7 +265,6 @@ def run_plastic_task():
 
         grip()
 
-        
         close_lid('close')
 
         
@@ -294,39 +278,60 @@ def run_plastic_task():
 
     finally:
         is_task_running = False
+        is_task_done = True
 
 
 def callback(msg):
     if msg.data == "plastic":
         print("[Plastic Node] Received 'plastic' command")
         task_queue.put(run_plastic_task)
+        print(task_queue.empty())
+
+
 from rclpy.executors import SingleThreadedExecutor
 
 def main(args=None):
+    global is_task_running, is_task_done, task_status_pub
     rclpy.init(args=args)
     node = rclpy.create_node("plastic_bottle_listener", namespace=ROBOT_ID)
     DR_init.__dsr__node = node
 
     node.create_subscription(String, "/robot_task_cmd", callback, 10)
 
+    task_status_pub = node.create_publisher(String, "/task_status", 10)
     executor = SingleThreadedExecutor()
     executor.add_node(node)
 
-    try:
-        while rclpy.ok():
-            executor.spin_once(timeout_sec=0.1)
 
-            # if not task_queue.empty():
-            #     task = task_queue.get()
-            #     task()  # 같은 스레드에서 실행됨 = 안전함
-            if not task_queue.empty():
-                task = task_queue.get()
-                thread = threading.Thread(target=task)
-                thread.start()
+    def publish_status():
+        status_msg = String()
+        status_msg.data = "running" if is_task_running else "idle"
+        task_status_pub.publish(status_msg)
 
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+
+
+    while rclpy.ok():
+        executor.spin_once(timeout_sec=0.1)
+
+        if not task_queue.empty():
+            print('task_queue.empty')
+            task = task_queue.get()
+            print(task)
+            thread = threading.Thread(target=task)
+            thread.start()
+
+        publish_status()
+
+        if is_task_done:
+            break
+
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+    # finally:
+    #     node.destroy_node()
+    #     rclpy.shutdown()
 
 
 if __name__ == "__main__":

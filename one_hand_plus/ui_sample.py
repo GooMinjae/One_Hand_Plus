@@ -1,10 +1,3 @@
-# import sys
-# import os
-# from PyQt5.QtWidgets import QMainWindow, QApplication
-# from PyQt5.QtCore import *
-# from PyQt5 import uic
-# from PyQt5.QtGui import QPixmap
-
 import os
 import sys
 
@@ -16,24 +9,17 @@ from python_qt_binding.QtGui import QKeySequence, QPixmap
 from python_qt_binding.QtWidgets import QShortcut, QWidget, QMainWindow, QApplication
 # from python_qt_binding import uic
 
+import one_hand_plus.plastic_bottle_test as plastic
+import one_hand_plus.glass_test as glass
+import one_hand_plus.bread as bread
+# import one_hand_plus.vegetable as vegetable
+
+
 
 import rclpy
 from rclpy.qos import QoSProfile
 from std_srvs.srv import SetBool
 from std_msgs.msg import String
-
-# # High DPI Scaling 비활성화 및 고정 배율 설정
-# os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"  # 자동 스케일링 비활성화
-# os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"   # DPI Scaling 비활성화
-# os.environ["QT_SCALE_FACTOR"] = "1"             # 배율을 1로 고정
-
-# '''PyInstaller로 프로그램을 생성하였을 때, 코드에서 호출하는 파일을 상대경로로 호출하기 위한 함수입니다.'''
-# @(lambda f: f())
-# def _(): os.chdir(getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__))))
-
-# # UI 파일 로드
-# form_class = uic.loadUiType("one_hand_plus_ui.ui")[0]
-
 
 
 class WindowClass(QMainWindow):
@@ -42,10 +28,6 @@ class WindowClass(QMainWindow):
 
         pkg_name = 'one_hand_plus'
         ui_filename = 'one_hand_plus_ui.ui'
-        # topic_name = 'cmd_vel'
-        # service_name = 'led_control'
-        # style = "background-color: rgb(222, 221, 218);\
-        #         border-radius: 5px;"
         style = """
                 QPushButton {
                     background-color: rgb(222, 221, 218);
@@ -68,25 +50,39 @@ class WindowClass(QMainWindow):
         self.node = rclpy.create_node("ui_task_sender")
         self.cmd_pub = self.node.create_publisher(String, "/robot_task_cmd", 10)
 
+        self.node.create_subscription(String, "/task_status", self.status_callback, 10)
+
+        self.ros_timer = QTimer()
+        self.ros_timer.timeout.connect(self.ros_spin_once)
+        self.ros_timer.start(50) 
+
+
         # self.setupUi(self)
         self.setWindowTitle("One Hand+")
 
         self.plastic_bottle_img.setPixmap(QPixmap(os.path.join(img_dir, 'bottle_water.png')).scaled(201, 281, Qt.KeepAspectRatio))
         self.glass_img.setPixmap(QPixmap(os.path.join(img_dir, 'glass.png')).scaled(201, 281, Qt.KeepAspectRatio))
-        self.vegetable_img.setPixmap(QPixmap(os.path.join(img_dir, 'vegetable_img.jpg')).scaled(201, 281, Qt.KeepAspectRatio))
         self.bread_img.setPixmap(QPixmap(os.path.join(img_dir, 'bread.png')).scaled(201, 281, Qt.KeepAspectRatio))
 
         self.plastic_bottle_btn.setStyleSheet(style)
         self.glass_btn.setStyleSheet(style)
         self.bread_btn.setStyleSheet(style)
-        self.vegetable_btn.setStyleSheet(style)
 
         self.plastic_bottle_btn.clicked.connect(self.send_plastic_cmd)
         self.glass_btn.clicked.connect(self.send_glass_cmd)
-
         self.bread_btn.clicked.connect(self.send_bread_cmd)
-        self.vegetable_btn.clicked.connect(self.send_vegetable_cmd)
 
+        self.running_label.setVisible(False)
+
+    def ros_spin_once(self):
+        rclpy.spin_once(self.node, timeout_sec=0)
+
+    def status_callback(self, msg):
+        if msg.data == "running":
+            self.running_label.setVisible(True)
+        else:
+            self.running_label.setVisible(False)
+        print('callback')
 
     def send_cmd(self, cmd_str):
         msg = String()
@@ -95,7 +91,13 @@ class WindowClass(QMainWindow):
         print(f"[UI] Published command: {cmd_str}")
 
     def send_plastic_cmd(self):
+        # if plastic.is_task_running:
+        #     self.running_label.setVisible(True)
+        # else:
         self.send_cmd("plastic")
+        # if plastic.is_task_running:
+        #     self.running_label.setVisible(True)
+        # # self.running_label.setVisible(True)
 
     def send_glass_cmd(self):
         self.send_cmd("glass")
@@ -103,8 +105,6 @@ class WindowClass(QMainWindow):
     def send_bread_cmd(self):
         self.send_cmd("bread")
 
-    def send_vegetable_cmd(self):
-        self.send_cmd("vegetable")
 
 def main():
     app = QApplication(sys.argv)

@@ -50,11 +50,18 @@ class WindowClass(QMainWindow):
         self.node = rclpy.create_node("ui_task_sender")
         self.cmd_pub = self.node.create_publisher(String, "/robot_task_cmd", 10)
 
-        self.node.create_subscription(String, "/plastic_task_status", self.status_callback, 10)
+        self.flag_plastic = False
+        self.flag_glass = False
+        self.flag_bread = False
+
+        self.node.create_subscription(String, "/plastic_task_status", self.plastic_status_callback, 10)
+        self.node.create_subscription(String, "/glass_task_status", self.glass_status_callback, 10)
+        self.node.create_subscription(String, "/bread_task_status", self.bread_status_callback, 10)
 
         self.ros_timer = QTimer()
         self.ros_timer.timeout.connect(self.ros_spin_once)
         self.ros_timer.start(50) 
+
 
 
         # self.setupUi(self)
@@ -77,11 +84,38 @@ class WindowClass(QMainWindow):
     def ros_spin_once(self):
         rclpy.spin_once(self.node, timeout_sec=0)
 
-    def status_callback(self, msg):
+    def plastic_status_callback(self, msg):
         if msg.data == "running":
+            self.flag_plastic = True
+            self.check_flags()
+        else:
+            self.flag_plastic = False
+            self.check_flags()
+
+
+    def glass_status_callback(self, msg):
+        if msg.data == "running":
+            self.flag_glass = True
+            self.check_flags()
+        else:
+            self.flag_glass = False
+            self.check_flags()
+
+    def bread_status_callback(self, msg):
+        if msg.data == "running":
+            self.flag_bread = True
+            self.check_flags()
+        else:
+            self.flag_bread = False
+            self.check_flags()
+
+
+    def check_flags(self):
+        if self.flag_plastic or self.flag_bread or self.flag_glass:
             self.running_label.setVisible(True)
         else:
             self.running_label.setVisible(False)
+
 
     def send_cmd(self, cmd_str):
         msg = String()
@@ -90,13 +124,7 @@ class WindowClass(QMainWindow):
         print(f"[UI] Published command: {cmd_str}")
 
     def send_plastic_cmd(self):
-        # if plastic.is_task_running:
-        #     self.running_label.setVisible(True)
-        # else:
         self.send_cmd("plastic")
-        # if plastic.is_task_running:
-        #     self.running_label.setVisible(True)
-        # # self.running_label.setVisible(True)
 
     def send_glass_cmd(self):
         self.send_cmd("glass")

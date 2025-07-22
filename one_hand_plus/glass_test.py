@@ -355,7 +355,7 @@ def main(args=None):
 
     node.create_subscription(String, "/robot_task_cmd", callback, 10)
 
-    task_status_pub = node.create_publisher(String, "/task_status", 10)
+    task_status_pub = node.create_publisher(String, "/glass_task_status", 10)
     executor = SingleThreadedExecutor()
     executor.add_node(node)
 

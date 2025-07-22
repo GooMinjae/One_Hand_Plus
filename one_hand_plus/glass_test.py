@@ -218,7 +218,7 @@ def main(args=None):
         #         pass
 
         # drl_script_stop(DR_QSTOP)
-        amovel(posx(10, -15, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+        amovel(posx(20, -13, 0, 0, 0, -30), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
         time.sleep(2)
 
         while True:
@@ -227,11 +227,11 @@ def main(args=None):
             rz_force = get_tool_force(ref=DR_BASE)
             time.sleep(0.1)
             print(f'rz: {rz_force[2]}')
-            if rz_force[2] > 10:
+            if rz_force[2] < 20:
                 print('Wrong opener position!!')
                 drl_script_stop(DR_SSTOP)
                 movel(find_opener_pos, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
-                movel([0, -5, -5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+                movel([0, 0, -5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
                 find_opener_pos, _ = get_current_posx()
                 time.sleep(0.3)
 
@@ -264,7 +264,7 @@ def main(args=None):
                 # 병뚜껑 따기
                 print('Starting open lid')
 
-                amovel(posx(10, -15, 0, 0, 0, -25), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
+                amovel(posx(20, -13, 0, 0, 0, -30), vel=VELOCITY-30, acc=ACC-30, mod=DR_MV_MOD_REL, ref=DR_TOOL)
                 time.sleep(2)
                 cnt += 1
                 pass

@@ -50,7 +50,7 @@ class WindowClass(QMainWindow):
         self.node = rclpy.create_node("ui_task_sender")
         self.cmd_pub = self.node.create_publisher(String, "/robot_task_cmd", 10)
 
-        self.node.create_subscription(String, "/task_status", self.status_callback, 10)
+        self.node.create_subscription(String, "/plastic_task_status", self.status_callback, 10)
 
         self.ros_timer = QTimer()
         self.ros_timer.timeout.connect(self.ros_spin_once)
@@ -82,7 +82,6 @@ class WindowClass(QMainWindow):
             self.running_label.setVisible(True)
         else:
             self.running_label.setVisible(False)
-        print('callback')
 
     def send_cmd(self, cmd_str):
         msg = String()

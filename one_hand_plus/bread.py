@@ -1,6 +1,11 @@
 import time
 import rclpy
 import DR_init
+from std_msgs.msg import String
+import threading
+from queue import Queue
+
+task_queue = Queue()
 
 ROBOT_ID = "dsr01"
 ROBOT_MODEL = "m0609"
@@ -10,13 +15,17 @@ DR_init.__dsr__id = ROBOT_ID
 DR_init.__dsr__model = ROBOT_MODEL
 
 OFF, ON = 0, 1
+is_task_running = False
+is_task_done = False
+task_status_pub = None
 
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = rclpy.create_node("rokey_force_control", namespace=ROBOT_ID)
-
-    DR_init.__dsr__node = node
+def run_bread_task():
+    print('receive topic')
+    global is_task_running, is_task_done
+    if is_task_running:
+        print("Task already running. Skipping.")
+        return
+    is_task_running = True
 
     try:
         from DSR_ROBOT2 import (
@@ -115,6 +124,7 @@ def main(args=None):
     set_tool("Tool Weight_2FG")
     set_tcp("2FG_TCP")
 
+
     JReady = posj([0, 0, 90, 0, 90, 0])
     Knife = posj([-3.59, 19.83, 119.88, -2.42, -49.43, 91.43])
     mov_1 = posj([-11.27, 6.04, 106.79, -23.6, -24.34, 111.6])
@@ -124,8 +134,8 @@ def main(args=None):
     Upper_knife = posj([-3.24, 12.65, 100.93, -4.09, -23.28, 93.76])
     mov_2 = posj([-26.66, -7.48, 118.37, -0.07, 69.21, 245.59])
     Bread_push = posj([-21.2, 5.86, 108.31, -4.67, 78.61, 251.55])
-    
-    
+        
+        
     '''
     1. 홈위치
     2. 칼집 위치로 이동
@@ -138,8 +148,7 @@ def main(args=None):
     9. 칼집에 칼 집어넣기
     10. 힘제어 끄고 홈위치로 이동
     '''
-
-    while rclpy.ok():
+    try:
         release()
         print(f"Moving to joint position: {JReady}")    
         movej(JReady, vel=VELOCITY, acc=ACC)    # 홈위치
@@ -225,7 +234,64 @@ def main(args=None):
         set_ref_coord(DR_BASE)
         movel([-50, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         movej(JReady, vel=VELOCITY, acc=ACC)
-        break
+
+    except KeyboardInterrupt:
+        release_force()
+        time.sleep(0.5)
+        release_compliance_ctrl()
+        time.sleep(0.5)
+
+    finally:
+        is_task_running = False
+        is_task_done = True
+
+
+
+def callback(msg):
+    if msg.data == "bread":
+        print("[bread Node] Received 'bread' command")
+        task_queue.put(run_bread_task)
+        # print(task_queue.empty())
+
+
+from rclpy.executors import SingleThreadedExecutor
+
+def main(args=None):
+    global is_task_running, is_task_done, task_status_pub
+    rclpy.init(args=args)
+    node = rclpy.create_node("bread_listener", namespace=ROBOT_ID)
+    DR_init.__dsr__node = node
+
+    node.create_subscription(String, "/robot_task_cmd", callback, 10)
+
+    task_status_pub = node.create_publisher(String, "/task_status", 10)
+    executor = SingleThreadedExecutor()
+    executor.add_node(node)
+
+
+    def publish_status():
+        status_msg = String()
+        status_msg.data = "running" if is_task_running else "idle"
+        task_status_pub.publish(status_msg)
+
+
+
+    while rclpy.ok():
+        executor.spin_once(timeout_sec=0.1)
+
+        if not task_queue.empty():
+            # print('task_queue.empty')
+            task = task_queue.get()
+            print(task)
+            thread = threading.Thread(target=task)
+            thread.start()
+
+        publish_status()
+
+        if is_task_done:
+            break
+
+    node.destroy_node()
     rclpy.shutdown()
 
 

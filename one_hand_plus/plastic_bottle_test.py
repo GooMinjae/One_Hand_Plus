@@ -285,7 +285,7 @@ def callback(msg):
     if msg.data == "plastic":
         print("[Plastic Node] Received 'plastic' command")
         task_queue.put(run_plastic_task)
-        print(task_queue.empty())
+        # print(task_queue.empty())
 
 
 from rclpy.executors import SingleThreadedExecutor
@@ -314,7 +314,7 @@ def main(args=None):
         executor.spin_once(timeout_sec=0.1)
 
         if not task_queue.empty():
-            print('task_queue.empty')
+            # print('task_queue.empty')
             task = task_queue.get()
             print(task)
             thread = threading.Thread(target=task)
@@ -327,11 +327,6 @@ def main(args=None):
 
     node.destroy_node()
     rclpy.shutdown()
-
-
-    # finally:
-    #     node.destroy_node()
-    #     rclpy.shutdown()
 
 
 if __name__ == "__main__":

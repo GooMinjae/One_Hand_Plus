@@ -1,7 +1,11 @@
 import time
 import rclpy
 import DR_init
-import math
+from std_msgs.msg import String
+import threading
+from queue import Queue
+
+task_queue = Queue()
 
 # for single robot
 ROBOT_ID = "dsr01"
@@ -13,12 +17,18 @@ DR_init.__dsr__model = ROBOT_MODEL
 
 OFF, ON = 0, 1
 
-####### 유리병 따개
-def main(args=None):
-    rclpy.init(args=args)
-    node = rclpy.create_node("rokey_force_control", namespace=ROBOT_ID)
+is_task_running = False
+is_task_done = False
+task_status_pub = None
 
-    DR_init.__dsr__node = node
+####### 유리병 따개
+def run_glass_task():
+    print('receive topic')
+    global is_task_running, is_task_done
+    if is_task_running:
+        print("Task already running. Skipping.")
+        return
+    is_task_running = True
 
     try:
         from DSR_ROBOT2 import (
@@ -92,7 +102,8 @@ def main(args=None):
     #######################################################################
 
     
-    while rclpy.ok():
+    # while rclpy.ok():
+    try:
         
         # 홈위치
         release()
@@ -315,11 +326,63 @@ def main(args=None):
 
         movesj([pos_to_opener_3, pos_to_opener_2, pos_to_opener_1,JReady], vel=VELOCITY, acc=ACC)
 
-        break
 
+    except KeyboardInterrupt:
+        release_force()
+        time.sleep(0.5)
+        release_compliance_ctrl()
+        time.sleep(0.5)
+
+    finally:
+        is_task_running = False
+        is_task_done = True
+
+
+def callback(msg):
+    if msg.data == "glass":
+        print("[glass Node] Received 'glass' command")
+        task_queue.put(run_glass_task)
+        # print(task_queue.empty())
+
+
+from rclpy.executors import SingleThreadedExecutor
+
+def main(args=None):
+    global is_task_running, is_task_done, task_status_pub
+    rclpy.init(args=args)
+    node = rclpy.create_node("glass_bottle_listener", namespace=ROBOT_ID)
+    DR_init.__dsr__node = node
+
+    node.create_subscription(String, "/robot_task_cmd", callback, 10)
+
+    task_status_pub = node.create_publisher(String, "/task_status", 10)
+    executor = SingleThreadedExecutor()
+    executor.add_node(node)
+
+
+    def publish_status():
+        status_msg = String()
+        status_msg.data = "running" if is_task_running else "idle"
+        task_status_pub.publish(status_msg)
+
+    while rclpy.ok():
+        executor.spin_once(timeout_sec=0.1)
+
+        if not task_queue.empty():
+            # print('task_queue.empty')
+            task = task_queue.get()
+            print(task)
+            thread = threading.Thread(target=task)
+            thread.start()
+
+        publish_status()
+
+        if is_task_done:
+            break
+
+    node.destroy_node()
     rclpy.shutdown()
 
 
 if __name__ == "__main__":
     main()
-    rclpy.shutdown()

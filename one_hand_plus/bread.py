@@ -165,7 +165,7 @@ def run_bread_task():
         movej(mov_1, vel=VELOCITY, acc=ACC)
         
         # 빵 좌표로 이동 후 힘제어 키고 하강
-        for i in range(1):
+        for i in range(3):
             movesj([Chopping, Slope_knife], vel=VELOCITY, acc=ACC)
             time.sleep(0.1)
             task_compliance_ctrl(stx=[1000, 500, 300, 100, 100, 100])       

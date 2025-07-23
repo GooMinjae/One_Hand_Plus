@@ -55,6 +55,8 @@ class WindowClass(QMainWindow):
         self.flag_bread = False
         self.flag_vegetable = False
 
+        self.labet_text = None
+
         self.node.create_subscription(String, "/plastic_task_status", self.plastic_status_callback, 10)
         self.node.create_subscription(String, "/glass_task_status", self.glass_status_callback, 10)
         self.node.create_subscription(String, "/bread_task_status", self.bread_status_callback, 10)
@@ -92,40 +94,45 @@ class WindowClass(QMainWindow):
     def plastic_status_callback(self, msg):
         if msg.data == "running":
             self.flag_plastic = True
-            self.check_flags()
+            self.labet_text = 'Opening Plastic Bottle' 
+            self.check_flags(self.labet_text)
         else:
             self.flag_plastic = False
-            self.check_flags()
+            self.check_flags(self.labet_text)
 
 
     def glass_status_callback(self, msg):
         if msg.data == "running":
             self.flag_glass = True
-            self.check_flags()
+            self.labet_text = 'Opening Glass Bottle' 
+            self.check_flags(self.labet_text)
         else:
             self.flag_glass = False
-            self.check_flags()
+            self.check_flags(self.labet_text)
 
     def bread_status_callback(self, msg):
         if msg.data == "running":
             self.flag_bread = True
-            self.check_flags()
+            self.labet_text = 'Slicing Bread' 
+            self.check_flags(self.labet_text)
         else:
             self.flag_bread = False
-            self.check_flags()
+            self.check_flags(self.labet_text)
 
     
     def vegetable_status_callback(self, msg):
         if msg.data == "running":
             self.flag_vegetable = True
-            self.check_flags()
+            self.labet_text = 'Slicing Vegetable' 
+            self.check_flags(self.labet_text)
         else:
             self.flag_vegetable = False
-            self.check_flags()
+            self.check_flags(self.labet_text)
 
 
-    def check_flags(self):
-        if self.flag_plastic or self.flag_bread or self.flag_glass:
+    def check_flags(self, text):
+        if self.flag_plastic or self.flag_bread or self.flag_glass or self.flag_vegetable:
+            self.running_label.setText(text)
             self.running_label.setVisible(True)
         else:
             self.running_label.setVisible(False)

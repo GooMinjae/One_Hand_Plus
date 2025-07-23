@@ -255,6 +255,7 @@ def run_plastic_task():
 
         release()
         movej(pos_bottle, vel=VELOCITY, acc=ACC)
+        movel([0, 0, 10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         grip()
 
         force_control(f_d=[0, 0, -20, 0, 0, 0], _max=18)

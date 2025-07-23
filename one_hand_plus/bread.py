@@ -178,7 +178,6 @@ def run_bread_task():
                 if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:      # 빵이 없을경우 예외처리
                     noBread()
                 pass
-            
             periodic_amp = [0, 15.0, 0.0, 0.0, 0.0, 0.0]
             amove_periodic(amp=periodic_amp, period=1.0, atime=0.02, repeat=20, ref=DR_TOOL)
 
@@ -199,12 +198,12 @@ def run_bread_task():
                 break
             movesj([mov_2,Bread_push], vel=VELOCITY, acc=ACC)
             movel([20*i, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-            movel([0, 0, -14, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([0, 0, -10, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             task_compliance_ctrl(stx=[300, 2000, 2000, 100, 100, 100])
             time.sleep(0.3)
             set_desired_force(fd=[10, 0, 0, 0, 0, 0], dir=[1, 0, 0, 0, 0, 0], mod=DR_FC_MOD_REL)
             time.sleep(0.3)
-            while not check_force_condition(DR_AXIS_Y, max=6,ref=DR_TOOL):
+            while not check_force_condition(DR_AXIS_Y, max=5,ref=DR_TOOL):
                 print("Starting check_force_condition")
                 time.sleep(0.5)
             release_force()

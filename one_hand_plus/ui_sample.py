@@ -53,10 +53,12 @@ class WindowClass(QMainWindow):
         self.flag_plastic = False
         self.flag_glass = False
         self.flag_bread = False
+        self.flag_vegetable = False
 
         self.node.create_subscription(String, "/plastic_task_status", self.plastic_status_callback, 10)
         self.node.create_subscription(String, "/glass_task_status", self.glass_status_callback, 10)
         self.node.create_subscription(String, "/bread_task_status", self.bread_status_callback, 10)
+        self.node.create_subscription(String, "/vegetable_task_status", self.vegetable_status_callback, 10)
 
         self.ros_timer = QTimer()
         self.ros_timer.timeout.connect(self.ros_spin_once)
@@ -70,14 +72,17 @@ class WindowClass(QMainWindow):
         self.plastic_bottle_img.setPixmap(QPixmap(os.path.join(img_dir, 'bottle_water.png')).scaled(201, 281, Qt.KeepAspectRatio))
         self.glass_img.setPixmap(QPixmap(os.path.join(img_dir, 'glass.png')).scaled(201, 281, Qt.KeepAspectRatio))
         self.bread_img.setPixmap(QPixmap(os.path.join(img_dir, 'bread.png')).scaled(201, 281, Qt.KeepAspectRatio))
+        self.vegetable_img.setPixmap(QPixmap(os.path.join(img_dir, 'vegetable_img.jpg')).scaled(201, 281, Qt.KeepAspectRatio))
 
         self.plastic_bottle_btn.setStyleSheet(style)
         self.glass_btn.setStyleSheet(style)
         self.bread_btn.setStyleSheet(style)
+        self.vegetable_btn.setStyleSheet(style)
 
         self.plastic_bottle_btn.clicked.connect(self.send_plastic_cmd)
         self.glass_btn.clicked.connect(self.send_glass_cmd)
         self.bread_btn.clicked.connect(self.send_bread_cmd)
+        self.vegetable_btn.clicked.connect(self.send_vegetable_cmd)
 
         self.running_label.setVisible(False)
 
@@ -109,6 +114,15 @@ class WindowClass(QMainWindow):
             self.flag_bread = False
             self.check_flags()
 
+    
+    def vegetable_status_callback(self, msg):
+        if msg.data == "running":
+            self.flag_vegetable = True
+            self.check_flags()
+        else:
+            self.flag_vegetable = False
+            self.check_flags()
+
 
     def check_flags(self):
         if self.flag_plastic or self.flag_bread or self.flag_glass:
@@ -131,6 +145,10 @@ class WindowClass(QMainWindow):
 
     def send_bread_cmd(self):
         self.send_cmd("bread")
+
+
+    def send_vegetable_cmd(self):
+        self.send_cmd("vegetable")
 
 
 def main():

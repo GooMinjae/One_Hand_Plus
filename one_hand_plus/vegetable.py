@@ -20,7 +20,7 @@ is_task_running = False
 is_task_done = False
 task_status_pub = None
 
-def run_bread_task():
+def run_vegetable_task():
     print('receive topic')
     global is_task_running, is_task_done
     if is_task_running:
@@ -46,11 +46,13 @@ def run_bread_task():
             movej,
             movel,
             movesj,
+            movesx,
             drl_script_stop,
             DR_FC_MOD_REL,
             DR_MV_MOD_REL,
             DR_FC_MOD_ABS,
             DR_AXIS_Z,
+            DR_AXIS_Y,
             DR_AXIS_X,
             DR_BASE,
             DR_TOOL,
@@ -89,7 +91,7 @@ def run_bread_task():
         # rclpy.logging(get_tool_force())
 
         while get_tool_force()[2] > -2:
-            print(get_tool_force())
+            # print(get_tool_force())
             pass
 
         time.sleep(1.0)
@@ -113,29 +115,21 @@ def run_bread_task():
         drl_script_stop(DR_SSTOP)
         print("can't find knife sheaf")
         movel([0, 0, 30, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        movel([0, 0, -20, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
         periodic_amp_2 = [10, 10, 0.0, 0.0, 0.0, 0.0]
-
-        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
-        time.sleep(0.5)
-        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        time.sleep(0.5)
         amove_periodic(amp=periodic_amp_2, period=3.0, atime=0.02, repeat=20, ref=DR_BASE)
-
-        while not check_position_condition(DR_AXIS_Z, min=350, ref=DR_BASE):
+        while not check_position_condition(DR_AXIS_Z, min=372.63, ref=DR_BASE):
             time.sleep(0.5)
             pass
         drl_script_stop(DR_SSTOP)
         time.sleep(0.5)
-
-        # task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
-        # time.sleep(0.5)
-        # set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        # time.sleep(0.5)
-        # while not check_force_condition(DR_AXIS_Z, max=10):
-        #     time.sleep(0.5)
-        #     print("check_force_condition")
-        #     pass
+        task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
+        time.sleep(0.5)
+        set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
+        time.sleep(0.5)
+        while not check_force_condition(DR_AXIS_Z, max=10):
+            time.sleep(0.5)
+            print("check_force_condition")
+            pass
         if not check_position_condition(DR_AXIS_Z, min=360, ref=DR_BASE):
             noSheaf()
 
@@ -178,14 +172,16 @@ def run_bread_task():
         movej(mov_1, vel=VELOCITY, acc=ACC)
         
         # 빵 좌표로 이동 후 힘제어 키고 하강
-        for i in range(1):
+        for i in range(3):
             movesj([Chopping, Slope_knife], vel=VELOCITY, acc=ACC)
+
+            movel([3, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             time.sleep(0.1)
             task_compliance_ctrl(stx=[1000, 500, 300, 100, 100, 100])       
             time.sleep(0.3)
             set_desired_force(fd=[0, 0, -10, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
             time.sleep(0.3)
-            while not check_force_condition(DR_AXIS_Z, max=4):
+            while not check_force_condition(DR_AXIS_Z, max=5):
                 print("Starting check_force_condition")
                 time.sleep(0.5)
                 if check_position_condition(DR_AXIS_Z, min=50, ref=DR_BASE) == -1:      # 빵이 없을경우 예외처리
@@ -211,19 +207,21 @@ def run_bread_task():
             if i == 2:
                 break
             movesj([mov_2,Bread_push], vel=VELOCITY, acc=ACC)
-            movel([20*i, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([27+20*i, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([0, 0, -14, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             task_compliance_ctrl(stx=[300, 2000, 2000, 100, 100, 100])
             time.sleep(0.3)
             set_desired_force(fd=[10, 0, 0, 0, 0, 0], dir=[1, 0, 0, 0, 0, 0], mod=DR_FC_MOD_REL)
             time.sleep(0.3)
-            while not check_force_condition(DR_AXIS_X, max=5):
+            while not check_force_condition(DR_AXIS_Y, max=6, ref=DR_TOOL):
+                print('push block force', get_tool_force())
                 print("Starting check_force_condition")
                 time.sleep(0.5)
             release_force()
             time.sleep(0.3)
             release_compliance_ctrl()
             time.sleep(1.0)
-            movel([25, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([17, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             movel([-10, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)            
             movej(mov_2, vel=VELOCITY, acc=ACC)
             
@@ -266,9 +264,9 @@ def run_bread_task():
 
 
 def callback(msg):
-    if msg.data == "bread":
-        print("[bread Node] Received 'bread' command")
-        task_queue.put(run_bread_task)
+    if msg.data == "vegetable":
+        print("[vegetable Node] Received 'vegetable' command")
+        task_queue.put(run_vegetable_task)
         # print(task_queue.empty())
 
 
@@ -277,12 +275,12 @@ from rclpy.executors import SingleThreadedExecutor
 def main(args=None):
     global is_task_running, is_task_done, task_status_pub
     rclpy.init(args=args)
-    node = rclpy.create_node("bread_listener", namespace=ROBOT_ID)
+    node = rclpy.create_node("vegetable_listener", namespace=ROBOT_ID)
     DR_init.__dsr__node = node
 
     node.create_subscription(String, "/robot_task_cmd", callback, 10)
 
-    task_status_pub = node.create_publisher(String, "/bread_task_status", 10)
+    task_status_pub = node.create_publisher(String, "/vegetable_task_status", 10)
     executor = SingleThreadedExecutor()
     executor.add_node(node)
 

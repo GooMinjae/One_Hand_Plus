@@ -51,6 +51,7 @@ def run_bread_task():
             DR_MV_MOD_REL,
             DR_FC_MOD_ABS,
             DR_AXIS_Z,
+            DR_AXIS_Y,
             DR_AXIS_X,
             DR_BASE,
             DR_TOOL,
@@ -83,11 +84,6 @@ def run_bread_task():
         drl_script_stop(DR_SSTOP)
         print("No bread detected")
         movel([0, 0, 100, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
-        # ready_to_go = input("check bread")
-
-        # while get_tool_force()[0] > 0 or get_tool_force()[1] > 0 or get_tool_force()[2] > 0:
-        # rclpy.logging(get_tool_force())
-
         while get_tool_force()[2] > -2:
             print(get_tool_force())
             pass
@@ -127,15 +123,6 @@ def run_bread_task():
             pass
         drl_script_stop(DR_SSTOP)
         time.sleep(0.5)
-
-        # task_compliance_ctrl(stx=[1000, 1000, 500, 100, 100, 100])
-        # time.sleep(0.5)
-        # set_desired_force(fd=[0, 0, -15, 0, 0, 0], dir=[0, 0, 1, 0, 0, 0], mod=DR_FC_MOD_REL)
-        # time.sleep(0.5)
-        # while not check_force_condition(DR_AXIS_Z, max=10):
-        #     time.sleep(0.5)
-        #     print("check_force_condition")
-        #     pass
         if not check_position_condition(DR_AXIS_Z, min=360, ref=DR_BASE):
             noSheaf()
 
@@ -212,11 +199,12 @@ def run_bread_task():
                 break
             movesj([mov_2,Bread_push], vel=VELOCITY, acc=ACC)
             movel([20*i, 0, 0, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+            movel([0, 0, -14, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
             task_compliance_ctrl(stx=[300, 2000, 2000, 100, 100, 100])
             time.sleep(0.3)
             set_desired_force(fd=[10, 0, 0, 0, 0, 0], dir=[1, 0, 0, 0, 0, 0], mod=DR_FC_MOD_REL)
             time.sleep(0.3)
-            while not check_force_condition(DR_AXIS_X, max=5):
+            while not check_force_condition(DR_AXIS_Y, max=6,ref=DR_TOOL):
                 print("Starting check_force_condition")
                 time.sleep(0.5)
             release_force()
@@ -269,7 +257,6 @@ def callback(msg):
     if msg.data == "bread":
         print("[bread Node] Received 'bread' command")
         task_queue.put(run_bread_task)
-        # print(task_queue.empty())
 
 
 from rclpy.executors import SingleThreadedExecutor
@@ -298,7 +285,6 @@ def main(args=None):
         executor.spin_once(timeout_sec=0.1)
 
         if not task_queue.empty():
-            # print('task_queue.empty')
             task = task_queue.get()
             print(task)
             thread = threading.Thread(target=task)

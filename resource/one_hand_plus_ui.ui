@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1360</width>
-    <height>573</height>
+    <width>805</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QLabel" name="running_label">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>420</y>
-     <width>961</width>
-     <height>531</height>
+     <x>10</x>
+     <y>10</y>
+     <width>781</width>
+     <height>541</height>
     </rect>
    </property>
    <property name="font">
@@ -38,160 +38,160 @@ border-radius: 10px;</string>
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="glass_btn">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>390</y>
-     <width>261</width>
-     <height>141</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>15</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>유리</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="glass_img">
-   <property name="geometry">
-    <rect>
-     <x>410</x>
-     <y>90</y>
-     <width>201</width>
-     <height>281</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="plastic_bottle_img">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>90</y>
-     <width>201</width>
-     <height>281</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="plastic_bottle_btn">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>390</y>
-     <width>261</width>
-     <height>141</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>15</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>패트병</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="bread_btn">
-   <property name="geometry">
-    <rect>
-     <x>700</x>
-     <y>390</y>
-     <width>261</width>
-     <height>141</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>15</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>빵류</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="bread_img">
-   <property name="geometry">
-    <rect>
-     <x>730</x>
-     <y>90</y>
-     <width>201</width>
-     <height>281</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="vegetable_btn">
-   <property name="geometry">
-    <rect>
-     <x>1030</x>
-     <y>390</y>
-     <width>261</width>
-     <height>141</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>15</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>빵류</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="vegetable_img">
-   <property name="geometry">
-    <rect>
-     <x>1050</x>
-     <y>90</y>
-     <width>201</width>
-     <height>281</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-  </widget>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>651</width>
-     <height>111</height>
+     <width>731</width>
+     <height>521</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
-     <string>Tab 1</string>
+     <string>병 따기 보조</string>
     </attribute>
+    <widget class="QPushButton" name="plastic_bottle_btn">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>320</y>
+       <width>261</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>패트병</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="glass_btn">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>320</y>
+       <width>261</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>유리</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="plastic_bottle_img">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>20</y>
+       <width>201</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="glass_img">
+     <property name="geometry">
+      <rect>
+       <x>470</x>
+       <y>20</y>
+       <width>201</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
-     <string>Tab 2</string>
+     <string>음식 손질 보조 </string>
     </attribute>
+    <widget class="QPushButton" name="vegetable_btn">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>320</y>
+       <width>261</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>야채</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="vegetable_img">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>20</y>
+       <width>201</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bread_img">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>20</y>
+       <width>201</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="bread_btn">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>320</y>
+       <width>261</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>빵류</string>
+     </property>
+    </widget>
    </widget>
   </widget>
-  <zorder>glass_btn</zorder>
-  <zorder>glass_img</zorder>
-  <zorder>plastic_bottle_img</zorder>
-  <zorder>plastic_bottle_btn</zorder>
-  <zorder>bread_btn</zorder>
-  <zorder>bread_img</zorder>
-  <zorder>running_label</zorder>
-  <zorder>vegetable_btn</zorder>
-  <zorder>vegetable_img</zorder>
   <zorder>tabWidget</zorder>
+  <zorder>running_label</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -163,7 +163,7 @@ def run_glass_task():
         # 병따개 거는 위치 찾기
         movesj([pos_cap_for_force_1, pos_cap_for_force_2, pos_cap_for_force_3, pos_cap_for_force], vel=VELOCITY, acc=ACC)
 
-        # find_opener_pos,_ = get_current_posx()
+        find_opener_pos,_ = get_current_posx()
         # print(f'opener position x: {find_opener_pos[0]}, y: {find_opener_pos[1]} , z: {find_opener_pos[2]}, a: {find_opener_pos[3]}, b: {find_opener_pos[4]} , c: {find_opener_pos[5]}')
         # diff_lid_z = c_pos_lid[2] - find_opener_pos[2]
 
@@ -208,11 +208,12 @@ def run_glass_task():
             print(f'rz: {rz_force[2]}')
 
             # 병따개 위치가 위로 잡았을 때
-            if rz_force[2] < 20:
+            if rz_force[2] < 18:
                 print('Wrong opener position!!')
                 drl_script_stop(DR_SSTOP)
+                time.sleep(0.5)
                 movel(find_opener_pos, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
-                movel([0, 0, -5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+                movel([0, 0, -15, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
                 find_opener_pos, _ = get_current_posx()
                 time.sleep(0.3)
 
@@ -251,11 +252,12 @@ def run_glass_task():
                 pass
 
             # 병따개 위치가 아래로 잡았을 때
-            elif rz_force[2] > 25:
+            elif rz_force[2] > 23:
                 print('Wrong opener position!!')
                 drl_script_stop(DR_SSTOP)
+                time.sleep(0.5)
                 movel(find_opener_pos, vel=VELOCITY, acc=ACC, mod=DR_MV_MOD_ABS)
-                movel([0, 0, 5, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
+                movel([0, 0, 15, 0, 0, 0], vel=VELOCITY, acc=ACC, ref=DR_BASE, mod=DR_MV_MOD_REL)
                 find_opener_pos, _ = get_current_posx()
                 time.sleep(0.3)
 
